@@ -1,0 +1,162 @@
+#top_bar
+{
+    text-align: right;
+    font-size: 12px;
+}
+
+#money_dog_header
+{
+    padding-top: 20px;
+    text-align: center;
+    font-size: 48px;
+}
+
+#menu
+{
+	text-align:center;
+	padding-top: 5px;
+    padding-bottom: 30px;
+}
+#menu a:link       { padding:5px; text-decoration: none; color:#333;}
+#menu a:visited { padding:5px; text-decoration: none; color:#333;}
+#menu a:active   { padding:5px; text-decoration: none; color:#333;}
+#menu a:hover     { padding:5px; text-decoration: none; font-weight:bold; color:#EEE; background-color:#666; }
+
+
+a:link {text-decoration: none; color:#006;}
+a:visited {text-decoration: none; color:#006;}
+a:active {text-decoration: none; color:#006;}
+a:hover {text-decoration: underline; color: blue;}
+
+.add
+{
+	text-align: center;
+	display: none;
+}
+
+
+/********************  <Item List>  *********************/
+#item_list
+{
+	text-align: center;
+	margin-top: 0px;
+}
+
+
+
+tr.blank_item
+{
+    height:1px;
+	/*background-color:#444444;*/
+    background-color: #8cd0f2;
+}
+tr.one_item_header
+{
+	text-align: center;
+	background-color:#abccff;
+	color:#00f;
+}
+tr.one_item1
+{
+	text-align: center;
+	background-color:#d5d5d5;
+	
+}
+tr.one_item2
+{
+	text-align: center;
+	background-color:#e5e5e5;
+}
+
+td.item_time
+{
+    color: #333;
+    width:160px;
+    margin-top:0px;
+    margin-bottom:0px;
+}
+
+/*Not Nessecry*/
+td.in_or_out
+{
+    color: #333;
+    width: 100px;
+    margin-top:0px;
+    margin-bottom:0px;
+}
+
+td.item_price
+{
+    width:60px;
+	text-align: right;
+	padding-right: 10px;
+    font-family: Times New Roman;
+}
+
+td.item_category
+{
+    width:120px;
+	text-align: left;
+	padding-left: 10px;
+}
+
+td.item_description
+{
+    width:350px;
+	text-align: left;
+	padding-left: 10px;
+}
+/********************  </Item List>  *********************/
+
+
+
+/********************  <Analytics List>  *********************/
+#analytics
+{
+    padding-top: 20px;
+}
+
+td.analytics_type
+{
+    width:80px;
+    margin-top:10px;
+    margin-bottom:0px;
+}
+
+td.analytics_value
+{
+    width:70px;
+	text-align: right;
+	padding-right: 10px;
+    
+    font-family: times new roman;
+    font-weight: bold;
+}
+/********************  </Analytics List>  *********************/
+
+td.stat_index
+{
+    width:40px;
+    text-align: center;
+    font-weight: bold;
+}
+
+td.stat_category
+{
+    width:120px;
+    margin-top:10px;
+    margin-bottom:0px;
+    text-align: left;
+    padding-left: 15px;
+}
+
+td.stat_price
+{
+    width:70px;
+	text-align: right;
+	padding-right: 10px;
+    
+    font-family: times new roman;
+    font-weight: bold;
+}
+

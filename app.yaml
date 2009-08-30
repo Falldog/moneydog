@@ -1,0 +1,27 @@
+application: moneydog-tw
+version: a1
+runtime: python
+api_version: 1
+
+handlers:
+
+- url: /templates
+  script: index.py
+
+- url: /styles
+  static_dir: styles
+
+- url: /js
+  static_dir: js
+
+- url: /img
+  static_dir: img
+
+- url: /test
+  script: test.py  
+  
+- url: /add
+  script: add.py  
+  
+- url: .*
+  script: index.py
