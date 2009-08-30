@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<project>
+	<options name = "MoneyDog"/>
+	<options bootfile = "root.py"/>
+	<options runargs = "moneydog-tw"/>
+	<options workdir = ""/>
+	<options remotepath = ""/>
+	<options remotefilesync = "false"/>
+	<group name = "Google App Engine">
+		<file path = "..\google_appengine\appcfg.py"/>
+		<file path = "..\google_appengine\dev_appserver.py"/>
+	</group>
+	<group name = "MoneyDog">
+		<file path = "index.py"/>
+		<file path = "my_func.py"/>
+		<group name = "Template">
+			<file path = "templates\base.html"/>
+			<file path = "templates\calendar.html"/>
+			<file path = "templates\index.html"/>
+			<file path = "templates\list.html"/>
+			<file path = "templates\list_edit.html"/>
+		</group>
+	</group>
+    <file path = "root.py"/>
+</project>
