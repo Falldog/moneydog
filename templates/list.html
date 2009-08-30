@@ -6,7 +6,14 @@
 <title>MoneyDog - List</title>
 <link type="text/css" rel="stylesheet" href="/styles/list.css" />
 <script type="text/javascript" language="javascript" src="/js/calendar.js"></script>
-
+<link type="text/css" href="css/jquery-ui-1.7.2.custom.css" rel="stylesheet" />	
+<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $('#item_date').datepicker({ dateFormat: 'yy-mm-dd' });
+    });
+</script>
 <script type="text/javascript" language="javascript">
 var type='{{type}}';
 
@@ -127,7 +134,7 @@ function CheckValue()
     			<br/>
     			價格 : <input type="text" id="item_price" name="item_price"/><br/>
     			說明 : <input type="text" name="item_description"/><br/>
-                日期 : <input type="text" id="item_date" name="item_date" value="{% now "Y-m-d" %}" size='10'/><a href="javascript:openCalendar('', 'insertForm', 'item_date', 'date')" rel="license"><img alt="選擇一個日期" style="border-width:0; text-align:center; vertical-align:center;" src="./img/calendar.png"/></a>
+                日期 : <input type="text" id="item_date" name="item_date" value="{% now "Y-m-d" %}" size='10'/>
                 <br/>
     			<input type="submit" value="OK"/>
     		</div>
@@ -143,7 +150,7 @@ function CheckValue()
     			<br/>
     			價格 : <input type="text" id="item_price" name="item_price"/><br/>
     			說明 : <input type="text" name="item_description"/><br/>
-                日期 : <input type="text" id="item_date" name="item_date" value="{% now "Y-m-d" %}" size='10'/><a href="javascript:openCalendar('', 'insertForm', 'item_date', 'date')" rel="license"><img alt="選擇一個日期" style="border-width:0; text-align:center; vertical-align:center;" src="./img/calendar.png"/></a>
+                日期 : <input type="text" id="item_date" name="item_date" value="{% now "Y-m-d" %}" size='10'/>
     			<br/>
     			<input type="Button" value="OK" onClick="CheckValue()"/>
     		</div>
