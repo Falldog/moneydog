@@ -15,23 +15,28 @@
     });
 </script>
 <script type="text/javascript" language="javascript">
-var type='{{type}}';
+    var type='{{type}}';
 
-function Show( form )
-{
-    if( type=="category_in" )
-		document.getElementById("add_category_in").style.display = "block";
-	else if( type=="category_out" )
-		document.getElementById("add_category_out").style.display = "block";
-	else if( type=="in" ){
-        document.getElementById("add_in").style.display = "block";
-		//document.all("add_in").style.display = "block";
-        //document.insertForm.add_in.style.display = "block";
-    }
-	else if( type=="out" )
-		document.getElementById("add_out").style.display = "block";
-}
-
+    $(function() {
+        // Parameter initial...
+        $('#insertButton').click(function() {
+			ShowHideInsert();
+			return false;
+		});
+        $('#insertSection').hide();
+        
+        
+        // function
+        function ShowHideInsert()
+        {
+            isec = $('#insertSection');
+            if( isec.css('display') == 'none' )
+                isec.show('clip');
+            else
+                isec.hide();
+        };
+    });
+    
 function CheckDelete( path )
 {
     var ans = confirm("你確定要刪除!?")
@@ -109,52 +114,55 @@ function CheckValue()
 		<input type="hidden" name="do" value="list_add"/>
 		<input type="hidden" name="type" value="{{type}}"/>
 
-		<div style="text-align:center;"><input type="button" value="新增一筆資料" onclick="Show(this)"/></div>
-
-        {% ifequal type "category_in" %}
-    		<div id="add_category_in" class="add">
-    			類別名稱 : <input type="text" name="item_caption"/><br/>
-    			<input type="submit" value="ok"/>
-    		</div>
-        {% endifequal %}
-        {% ifequal type "category_out" %}
-    		<div id="add_category_out" class="add">
-    			類別名稱 : <input type="text" name="item_caption"/><br/>
-    			<input type="submit" value="ok"/>
-    		</div>
-        {% endifequal %}
-        {% ifequal type "in" %}
-    		<div id="add_in" class="add">
-    			類別 : 
-                <select name="item_category_id">
-                    {% for item in category_in %}
-                        <option value="{{item.key}}">{{ item.description }}</option>
-                    {% endfor %}
-    			</select>
-    			<br/>
-    			價格 : <input type="text" id="item_price" name="item_price"/><br/>
-    			說明 : <input type="text" name="item_description"/><br/>
-                日期 : <input type="text" id="item_date" name="item_date" value="{% now "Y-m-d" %}" size='10'/>
-                <br/>
-    			<input type="submit" value="OK"/>
-    		</div>
-        {% endifequal %}
-        {% ifequal type "out" %}
-    		<div id="add_out" class="add">
-    			類別 : 
-                <select name="item_category_id">
-                    {% for item in category_out %}
-                        <option value="{{item.key}}">{{ item.description }}</option>
-                    {% endfor %}
-    			</select>
-    			<br/>
-    			價格 : <input type="text" id="item_price" name="item_price"/><br/>
-    			說明 : <input type="text" name="item_description"/><br/>
-                日期 : <input type="text" id="item_date" name="item_date" value="{% now "Y-m-d" %}" size='10'/>
-    			<br/>
-    			<input type="Button" value="OK" onClick="CheckValue()"/>
-    		</div>
-        {% endifequal %}
+		<div style="text-align:center;"><input id='insertButton' type="button" value="新增一筆資料"/></div>
+        <div id="insertSection">
+        
+            {% ifequal type "category_in" %}
+                <div id="add_category_in" class="add">
+                    類別名稱 : <input type="text" name="item_caption"/><br/>
+                    <input type="submit" value="ok"/>
+                </div>
+            {% endifequal %}
+            {% ifequal type "category_out" %}
+                <div id="add_category_out" class="add">
+                    類別名稱 : <input type="text" name="item_caption"/><br/>
+                    <input type="submit" value="ok"/>
+                </div>
+            {% endifequal %}
+            {% ifequal type "in" %}
+                <div id="add_in" class="add">
+                    類別 : 
+                    <select name="item_category_id">
+                        {% for item in category_in %}
+                            <option value="{{item.key}}">{{ item.description }}</option>
+                        {% endfor %}
+                    </select>
+                    <br/>
+                    價格 : <input type="text" id="item_price" name="item_price"/><br/>
+                    說明 : <input type="text" name="item_description"/><br/>
+                    日期 : <input type="text" id="item_date" name="item_date" value="{% now "Y-m-d" %}" size='10'/>
+                    <br/>
+                    <input type="submit" value="OK"/>
+                </div>
+            {% endifequal %}
+            {% ifequal type "out" %}
+                <div id="add_out" class="add">
+                    類別 : 
+                    <select name="item_category_id">
+                        {% for item in category_out %}
+                            <option value="{{item.key}}">{{ item.description }}</option>
+                        {% endfor %}
+                    </select>
+                    <br/>
+                    價格 : <input type="text" id="item_price" name="item_price"/><br/>
+                    說明 : <input type="text" name="item_description"/><br/>
+                    日期 : <input type="text" id="item_date" name="item_date" value="{% now "Y-m-d" %}" size='10'/>
+                    <br/>
+                    <input type="Button" value="OK" onClick="CheckValue()"/>
+                </div>
+            {% endifequal %}
+            
+        </div>
 	</form>
     
     
