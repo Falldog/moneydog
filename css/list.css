@@ -28,16 +28,24 @@ a:visited {text-decoration: none; color:#006;}
 a:active {text-decoration: none; color:#006;}
 a:hover {text-decoration: underline; color: blue;}
 
+#select_year{  font-size:16px; margin-bottom: 5px;}
+#select_month{ font-size:16px; margin-bottom: 5px; }
+
+#m_arrow_next{     position: relative; top: 5px; }
+#m_arrow_previous{ position: relative; top: 5px; }
+
 .add
 {
 	text-align: center;
 	/*display: none;*/
 }
 
-
 /********************  <Item List>  *********************/
 #item_list
 {
+    width: 800px;
+    margin-left:  auto;
+    margin-right: auto;
 	text-align: center;
 	margin-top: 0px;
 }
@@ -74,6 +82,7 @@ td.item_time
     width:160px;
     margin-top:0px;
     margin-bottom:0px;
+    text-align: center;
 }
 
 /*Not Nessecry*/
