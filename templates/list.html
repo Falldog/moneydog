@@ -32,6 +32,9 @@
                                         widgets: ['zebra'], 
                                         headers: { 0 : {sorter:false} }
                                       });
+        // Not working...
+        $(".list_table tr").hover( function(){ $(this).css("background-color","#D1D7DC"); }
+                                  ,function(){ $(this).css('background-color','#EFEFEF'); } );
         
         // function
         function ShowHideInsert()
@@ -178,16 +181,18 @@ function CheckValue()
        
         {##### Item Data - Category #####}
         {% ifequal show_type "category" %}
-		<table border='0' align='center'>
-			<tr class='one_item_header'><th></th><th>分類名稱</th></tr>
+		<table class='list_table' border='0' align='center'>
+            <thead>
+                <tr class='one_item_header'><th></th><th>分類名稱</th></tr>
+            </thead>
             {% for item in items %}
                 {% if forloop.counter|divisibleby:"2" %}
-                 <tr class='one_item1' onMouseOver="MouseOverItem(this)" onMouseOut="MouseOutItem(this)">
+                 <tr onMouseOver="MouseOverItem(this)" onMouseOut="MouseOutItem(this)">
                 {%else%}
-                 <tr class='one_item2' onMouseOver="MouseOverItem(this)" onMouseOut="MouseOutItem(this)">
+                 <tr onMouseOver="MouseOverItem(this)" onMouseOut="MouseOutItem(this)">
                 {%endif%}
                 
-                    <td >
+                    <td class='modify_item'>
                         <a href='list_edit?type={{type}}&amp;do=edit&amp;item_key={{item.key}}'><img alt='編輯' src='./img/edit.png'/></a>
                         <a href='javascript:CheckDelete("list_delete?type={{type}}&amp;item_key={{item.key}}")'><img alt='刪除' src='./img/delete.png'/></a>
                     </td>
@@ -239,13 +244,15 @@ function CheckValue()
                     <th></th><th>時間</th><th>價格</th><th>類別</th><th>說明</th>
                 </tr>
             </thead>
+            
+            <tbody>
             {% for item in items %}
                 {% ifequal item.date None %}
                    <tr>td colspan="5"></td></tr>
                 {% endifequal %}
                 {% ifnotequal item.date None %}
-                    <tr onMouseOver="MouseOverItem(this)" onMouseOut="MouseOutItem(this)">
-                        <td>
+                    <tr >
+                        <td class='modify_item'>
                             <a href='list_edit?type={{type}}&amp;do=edit&amp;item_key={{item.key}}'><img alt='編輯' src='./img/edit.png'/></a>
                             <a href='javascript:CheckDelete("list_delete?type={{type}}&amp;item_key={{item.key}}")'><img  alt='刪除' src='./img/delete.png'/></a>
                         </td>
@@ -256,9 +263,7 @@ function CheckValue()
                     </tr>
                 {% endifnotequal %}
             {% endfor %}
-            <!-- New Version Support
-            <tr class="blank_item"><td colspan="5"></td></tr>
-            -->
+            </tbody>
         </table>
         {% endifequal %}
         
