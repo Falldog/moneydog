@@ -132,7 +132,7 @@ class Login( webapp.RequestHandler ):
         else :
             self.redirect(users.create_login_url(self.request.uri))
             return
-    self.redirect("list")
+    self.redirect("list_aj")
     
 class Logout( webapp.RequestHandler ):
   def get(self):
@@ -586,7 +586,100 @@ class Test( webapp.RequestHandler ):
   def get(self):
     print users.get_current_user().nickname()
     print users.get_current_user()
+
     
+class ListAjax( webapp.RequestHandler ):
+  def get(self):
+    path = os.path.join(os.path.dirname(__file__), 'templates/list_aj.html')
+    self.response.out.write( template.render( path, None ))
+
+class Query( webapp.RequestHandler ):
+  def post(self):
+    get()
+    
+  def get(self):
+    #self.response.headers['Content-Type'] = 'text/plain'
+    #self.response.out.write('List!')
+    type = self.request.get('type')
+    
+    if( type==None or type=="" ):
+        type = 'out'
+        self.do_query_out()
+    elif( type=='in' ):
+        self.do_query_in()
+    elif( type=='out' ):
+        self.do_query_out()
+    elif( type=='category_in' ):
+        self.do_list_category_in();
+    elif( type=='category_out' ):
+        self.do_list_category_out()
+    elif( type=='search_category' ):
+        self.do_search_category()
+  
+  def do_query_in(self):
+    try:
+        year =  int( self.request.get('year') )
+        month = int( self.request.get('month') )
+    except ValueError:
+        year  = 0
+        month = 0
+    if year==None or year==0:     year = datetime.datetime.now().year
+    if month==None or month==0:   month = datetime.datetime.now().month
+    dt = datetime.datetime(year,month,1)
+    
+    #query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ", users.get_current_user(), CATEGORY_IN, datetime.datetime(year,month,1), datetime.datetime(year,month,31) )
+    query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ORDER BY date", users.get_current_user(), CATEGORY_IN, datetime.datetime(year,month,1), datetime.datetime(year,month,LastDayOfMonth(dt)) )
+    #query = TradeItem.gql( "WHERE user=:1 AND type=:2 ORDER BY date", users.get_current_user(), CATEGORY_IN )
+    items = []
+    for i in query :
+        item = {}
+        item['key'] = i.key()
+        item['price'] = IntAddComma(i.price)
+        item['category'] = i.category.description
+        item['description'] = i.description
+        item['date'] = i.date
+        items.append( item )
+        
+    line_sep = '$\n'
+    sep      = '$#'
+    for i in items:
+        #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
+        html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], sep, i['price'], sep, i['category'], sep, i['description'], sep, i['key'], line_sep)
+        self.response.out.write( html )
+    
+  def do_query_out(self):
+    try:
+        year =  int( self.request.get('year') )
+        month = int( self.request.get('month') )
+    except ValueError:
+        year  = 0
+        month = 0
+    if year==None or year==0:     year = datetime.datetime.now().year
+    if month==None or month==0:   month = datetime.datetime.now().month
+    dt = datetime.datetime(year,month,1)
+
+    query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ORDER BY date", users.get_current_user(), CATEGORY_OUT, datetime.datetime(year,month,1), datetime.datetime(year,month,LastDayOfMonth(dt)) )
+    #query = TradeItem.gql( "WHERE user=:1 AND type=:2 ORDER BY date", users.get_current_user(), CATEGORY_OUT, )
+    items = []
+    pre_item = {}
+    for i in query :
+        item = {}
+        item['key'] = i.key()
+        item['price'] = IntAddComma(i.price)
+        item['_price'] = i.price
+        item['_category'] = i.category
+        item['category'] = i.category.description
+        item['description'] = i.description
+        item['date'] = i.date
+        
+        items.append( item )
+        
+    line_sep = '$\n'
+    sep      = '$#'
+    for i in items:
+        #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
+        html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], sep, i['price'], sep, i['category'], sep, i['description'], sep, i['key'], line_sep)
+        self.response.out.write( html )
     
     
 application = webapp.WSGIApplication([
@@ -601,6 +694,8 @@ application = webapp.WSGIApplication([
   ('/calendar', Calendar),
   ('/search', Search),
   ('/test', Test),
+  ('/query', Query),
+  ('/list_aj',  ListAjax),
 ], debug=True)
 
 application_login = webapp.WSGIApplication([

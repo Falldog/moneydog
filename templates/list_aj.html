@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-TW" lang="zh-TW">
+<head>
+
+<title>MoneyDog - List</title>
+<link type="text/css" rel="stylesheet" href="css/list.css" />
+<link type="text/css" rel="stylesheet" href="css/jquery-ui-1.7.2.custom.css"/>
+<link type="text/css" rel="stylesheet" href="css/jquery-tablesorter.css"/>
+
+<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery-alternate.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $('#item_date').datepicker({ dateFormat: 'yy-mm-dd' });
+    });
+</script>
+<script type="text/javascript" language="javascript">
+    var type='{{type}}';
+
+$(function() {
+    //Marco
+    var QUERY_TYPE_OUT = 'out';
+    var QUERY_TYPE_IN  = 'in';
+    
+    // Parameter initial...
+    var g_query_type = QUERY_TYPE_OUT;
+    $('img').css('border-width', 0);
+    //$('#dialog_edit_trade').hide();
+    //$('#dialog_delete').hide();
+    
+    
+    $("#query_out").click( function(){
+        g_query_type = QUERY_TYPE_OUT;
+        QueryData_Trade();
+    });
+    $("#query_in").click(function() {
+        g_query_type = QUERY_TYPE_IN;
+        QueryData_Trade();
+    });
+    
+    Init_Dialog();
+    CreateSelectDate();
+    $("#img_arrow_previous").click( function(){
+        var y = parseInt( $("#select_year").val() );
+        var m = parseInt( $("#select_month").val() );
+        m -= 1;
+        if( m==0 ){ y-=1; m=12; }
+        AssignSelectDate(y,m);
+        QueryData_Trade();
+    });
+    $("#img_arrow_next").click( function(){
+        var y = parseInt( $("#select_year").val() );
+        var m = parseInt( $("#select_month").val() );
+        m = parseInt(m);
+        m += 1;
+        if( m==13 ){ y+=1; m=1; }
+        AssignSelectDate(y,m);
+        QueryData_Trade();
+    });
+    
+    function Init_Dialog(){
+        $('#dialog_delete').dialog({
+            autoOpen: false,
+            bgiframe: true,
+            resizable: false,
+            height:160,
+            modal: true,
+            overlay: {
+                backgroundColor: '#000',
+                opacity: 0.5
+            },
+            buttons: {
+                'Delete': function() {
+                    $(this).dialog('close');
+                    //$(this).hide();
+                },
+                Cancel: function() {
+                    $(this).dialog('close');
+                    //$(this).hide(); 
+                }
+            }
+        });
+		$("#dialog_edit_trade").dialog({
+			bgiframe: true,
+			autoOpen: false,
+			height: 300,
+            width:  400,
+			modal: true,
+			buttons: {
+				'OK': function() {
+                    $(this).dialog('close');
+				},
+				Cancel: function() {
+					$(this).dialog('close');
+				}
+			},
+			close: function() {
+				//allFields.val('').removeClass('ui-state-error');
+                allFields.val('');
+			}
+		});
+        
+    }
+    
+    //For TEST
+    /*
+    $("#list_table").click(function() {
+        alert($("#list_table tbody").children().length);
+    })*/
+    
+    function QueryData_Trade() {
+        //alert('QueryData_Trade');
+        var y = $("#select_year").val();
+        var m = $("#select_month").val();
+        $.get("query?type="+g_query_type+"&year="+y+"&month="+m, QueryDataResult_Trade);
+        return false;
+    }
+    function QueryDataResult_Trade(html) {
+        //alert('QueryDataResult_Trade');
+        //Reset the #list_table
+        $("#list_table tbody tr").remove();
+        
+        data = html.split('$\n');
+        for( var i=0 ; i < data.length ; i++ )
+        {
+            item = data[i].split('$#');
+            AppendTradeData(item);
+        }
+        FlushListTable();
+        AssignCss_ListTableAllTrade();
+    }
+    
+    
+    function CreateSelectDate(){
+        var curDate = new Date();
+        var curY = curDate.getFullYear();
+        var curM = curDate.getMonth();
+        for( var y=curY-3 ; y<curY+3 ; y++ )
+            $("#select_year").append( "<option value='"+y+"'>"+y+"</option>" );
+        for( var m=1 ; m<=12 ; m++ )
+            $("#select_month").append( "<option value='"+m+"'>"+m+"</option>" );
+        
+        AssignSelectDate(curY, curM);
+        
+        $("#select_year").bind('change', function(e){
+            alert("change:" + $("#select_year").val() );
+        })
+        $("#select_month").bind('change', function(e){
+            alert("change:" + $("#select_month").val() );
+        })
+    }
+    
+    function FlushListTable(){
+        $('#list_table tbody tr').alternate({odd:'ListTableTH_odd', even:'ListTableTH_even', hover:'ListTableTH_hover'});
+    }
+    
+    function AssignSelectDate(y,m){
+        $("#select_year  option[value="+y+"]").attr('selected', true);
+        $("#select_month option[value="+m+"]").attr('selected', true);
+    }
+    function AppendTradeData(data){
+        if( data.length < 5 ) return;
+        //<a href='list_edit?type={{type}}&amp;do=edit&amp;item_key={{item.key}}'><img alt='編輯' src='./img/edit.png'/></a>
+        //<a href='javascript:CheckDelete("list_delete?type={{type}}&amp;item_key={{item.key}}")'><img alt='刪除' src='./img/delete.png'/></a>
+        var key = data[4];
+        new_html = '<tr key='+key+'> <td></td> <td>'+data[0]+'</td> <td>'+data[1]+'</td> <td>'+data[2]+'</td> <td>'+data[3]+'</td> </tr>'
+        $("#list_table tbody").append(new_html);
+        
+        $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
+        $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_delete' key='"+key+"' alt='刪除' src='./img/delete.png'/>");
+        //AssignCss_ListTableTrade(key);
+    }
+    
+    function AssignCss_ListTableTrade(key){
+        $("#list_table tbody tr[key="+key+"] td:eq(1)").addClass('ListTableTH_time');
+        $("#list_table tbody tr[key="+key+"] td:eq(2)").addClass('ListTableTH_price');
+        $("#list_table tbody tr[key="+key+"] td:eq(3)").addClass('ListTableTH_category');
+        $("#list_table tbody tr[key="+key+"] td:eq(4)").addClass('ListTableTH_description');
+    }
+    function AssignCss_ListTableAllTrade(){
+        $("#list_table thead tr").addClass('ListTableTH_header');
+        $("#list_table tbody tr").each( function(i){
+            $(this).children().eq(1).addClass('ListTableTH_time');
+            $(this).children().eq(2).addClass('ListTableTH_price');
+            $(this).children().eq(3).addClass('ListTableTH_category');
+            $(this).children().eq(4).addClass('ListTableTH_description');
+        });
+        
+        //alert( $("#list_table thead tr td img.img_edit").length );
+        $(".img_edit").click( function(){
+            //alert($(this).attr('key'));
+            $('#dialog_edit_trade').dialog('open');
+        });
+        $(".img_delete").click( function(){
+            //alert($(this).attr('key'));
+            $('#dialog_delete').dialog('open');
+        });
+    }
+});
+</script>
+
+</head>
+<body>
+    
+    <div id="top_bar">{{user}}<a href="logout">登出</a></div>
+    
+    
+    <div id="money_dog_header">Money Dog</div>
+    
+    <!-- Search -->
+	<form name="searchForm" method="get" action="search">
+		<input type="hidden" name="type" value="{{type}}"/>
+        
+        <div id="search"  align="center">
+            <input name="key_words" type="text" size="50"/><input type="submit" value="搜尋"/>
+        </div>
+        
+    </form>
+
+	<!--Menu-->
+	<div id="menu">
+		<a href="list?type=category_in">收入類別</a>
+		<a href="list?type=category_out">支出類別</a>
+		<a href="list?type=in">收入</a>
+		<a href="list?type=out">支出</a>
+        <div id='query_out'>ajax支出</div>
+        <div id='query_in'>ajax收入</div>
+	</div>
+    
+	
+    <div id="item_list">
+        <div id='m_select_month'>
+            <img id='img_arrow_previous' alt='Previous' src='./img/previous.png'/>
+              <select id="select_year">
+              </select>
+              <select id="select_month">
+              </select>
+            <img id='img_arrow_next' alt='Next' src='./img/next.png'/>
+        </div>
+        
+        {##### Item Data - TradeItem #####}
+		<table id='list_table' border='0' align='center'>
+            <thead> 
+                <tr>
+                    <th></th><th>時間</th><th>價格</th><th>類別</th><th>說明</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    
+    
+    <div id='dialog_edit_trade' title='Edit'>
+        <form>
+            <fieldset>
+                價格 : <input type="text" id="edit_price"          class="text ui-widget-content ui-corner-all" /><br/>
+                說明 : <input type="text" id="edit_description"    class="text ui-widget-content ui-corner-all" /><br/>
+                日期 : <input type="text" id="edit_date" size='10' class="text ui-widget-content ui-corner-all" /><br/>
+            </fieldset>
+        </form>
+    </div>
+    <div id='dialog_delete' title='Warning!'>
+        確定要刪除!?
+    </div>
+</body>
+</html>
+
+
