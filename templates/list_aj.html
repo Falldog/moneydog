@@ -27,6 +27,7 @@ $(function() {
     // Parameter initial...
     var g_query_type = QUERY_TYPE_OUT;
     $('img').css('border-width', 0);
+    $('#ui-datepicker-div').css('z-index', 2000);
     //$('#dialog_edit_trade').hide();
     //$('#dialog_delete').hide();
     
@@ -74,33 +75,30 @@ $(function() {
             buttons: {
                 'Delete': function() {
                     $(this).dialog('close');
-                    //$(this).hide();
                 },
                 Cancel: function() {
                     $(this).dialog('close');
-                    //$(this).hide(); 
                 }
             }
         });
-		$("#dialog_edit_trade").dialog({
-			bgiframe: true,
-			autoOpen: false,
-			height: 300,
+        $("#dialog_edit_trade").dialog({
+            bgiframe: true,
+            autoOpen: false,
+            height: 300,
             width:  400,
-			modal: true,
-			buttons: {
-				'OK': function() {
+            modal: true,
+            buttons: {
+                'OK': function() {
                     $(this).dialog('close');
-				},
-				Cancel: function() {
-					$(this).dialog('close');
-				}
-			},
-			close: function() {
-				//allFields.val('').removeClass('ui-state-error');
-                allFields.val('');
-			}
-		});
+                },
+                Cancel: function() {
+                    $(this).dialog('close');
+                }
+            },
+            close: function(event, ui) {
+                $('#ui-datepicker-div').hide()
+            }
+        });
         
     }
     
@@ -164,8 +162,14 @@ $(function() {
         if( data.length < 5 ) return;
         //<a href='list_edit?type={{type}}&amp;do=edit&amp;item_key={{item.key}}'><img alt='編輯' src='./img/edit.png'/></a>
         //<a href='javascript:CheckDelete("list_delete?type={{type}}&amp;item_key={{item.key}}")'><img alt='刪除' src='./img/delete.png'/></a>
-        var key = data[4];
-        new_html = '<tr key='+key+'> <td></td> <td>'+data[0]+'</td> <td>'+data[1]+'</td> <td>'+data[2]+'</td> <td>'+data[3]+'</td> </tr>'
+        var time  = data[0];
+        var price = data[1];
+        var cate  = data[2];
+        var desc  = data[3];
+        var key   = data[4];
+        new_html = '<tr time="'+time+'" price="'+price+'" category="'+cate+'" description="'+desc+'" key="'+key+'" >'
+                     +'<td></td> <td>'+data[0]+'</td> <td>'+data[1]+'</td> <td>'+data[2]+'</td> <td>'+data[3]+'</td>'
+                     +'</tr>'
         $("#list_table tbody").append(new_html);
         
         $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
@@ -190,8 +194,15 @@ $(function() {
         
         //alert( $("#list_table thead tr td img.img_edit").length );
         $(".img_edit").click( function(){
-            //alert($(this).attr('key'));
+            var tr = $(this).parent().parent();
             $('#dialog_edit_trade').dialog('open');
+            $('#edit_price').val( tr.attr('price') );
+            $('#edit_time').val(  tr.attr('time') );
+            $('#edit_description').val(  tr.attr('description') );
+            
+            $('#edit_time').datepicker({ dateFormat: 'yy-mm-dd' });
+            
+            //alert( $('#ui-datepicker-div').length )
         });
         $(".img_delete").click( function(){
             //alert($(this).attr('key'));
@@ -210,8 +221,8 @@ $(function() {
     <div id="money_dog_header">Money Dog</div>
     
     <!-- Search -->
-	<form name="searchForm" method="get" action="search">
-		<input type="hidden" name="type" value="{{type}}"/>
+    <form name="searchForm" method="get" action="search">
+        <input type="hidden" name="type" value="{{type}}"/>
         
         <div id="search"  align="center">
             <input name="key_words" type="text" size="50"/><input type="submit" value="搜尋"/>
@@ -219,17 +230,17 @@ $(function() {
         
     </form>
 
-	<!--Menu-->
-	<div id="menu">
-		<a href="list?type=category_in">收入類別</a>
-		<a href="list?type=category_out">支出類別</a>
-		<a href="list?type=in">收入</a>
-		<a href="list?type=out">支出</a>
+    <!--Menu-->
+    <div id="menu">
+        <a href="list?type=category_in">收入類別</a>
+        <a href="list?type=category_out">支出類別</a>
+        <a href="list?type=in">收入</a>
+        <a href="list?type=out">支出</a>
         <div id='query_out'>ajax支出</div>
         <div id='query_in'>ajax收入</div>
-	</div>
+    </div>
     
-	
+    
     <div id="item_list">
         <div id='m_select_month'>
             <img id='img_arrow_previous' alt='Previous' src='./img/previous.png'/>
@@ -241,7 +252,7 @@ $(function() {
         </div>
         
         {##### Item Data - TradeItem #####}
-		<table id='list_table' border='0' align='center'>
+        <table id='list_table' border='0' align='center'>
             <thead> 
                 <tr>
                     <th></th><th>時間</th><th>價格</th><th>類別</th><th>說明</th>
@@ -257,9 +268,9 @@ $(function() {
     <div id='dialog_edit_trade' title='Edit'>
         <form>
             <fieldset>
-                價格 : <input type="text" id="edit_price"          class="text ui-widget-content ui-corner-all" /><br/>
-                說明 : <input type="text" id="edit_description"    class="text ui-widget-content ui-corner-all" /><br/>
-                日期 : <input type="text" id="edit_date" size='10' class="text ui-widget-content ui-corner-all" /><br/>
+                價格 : <input type="text" id="edit_price"          class="text ui-widget-content ui-corner-all" /> <br/>
+                說明 : <input type="text" id="edit_description"    class="text ui-widget-content ui-corner-all" /> <br/>
+                日期 : <input type="text" id="edit_time" size='10' class="text ui-widget-content ui-corner-all" /> <br/>
             </fieldset>
         </form>
     </div>
