@@ -458,6 +458,23 @@ class ListEdit( webapp.RequestHandler ):
             item.description = self.request.get('item_description')
             item.put()
         self.redirect('/list?type='+type)
+        
+    elif do=='aj':
+        if( type=='in' or type=='out' ):
+            item = db.get( db.Key( self.request.get('edit_key') ) )
+            item.category    = db.get( self.request.get('edit_category') )
+            item.price       = int( self.request.get('edit_price') )
+            item.description = self.request.get('edit_description')
+            add_date         = datetime.datetime.strptime( self.request.get('edit_time'), "%Y-%m-%d" )
+            item.date        = datetime.date( add_date.year, add_date.month, add_date.day )
+            item.put()
+            item.save()
+            
+        elif( type=='category_in' or type=='category_out' ):
+            item = db.get( db.Key( self.request.get('item_key') ) )
+            item.description = self.request.get('item_description')
+            item.put()
+        self.redirect('/list?type='+type)
 
 class ListDelete( webapp.RequestHandler ):
   def get(self):
@@ -610,9 +627,9 @@ class Query( webapp.RequestHandler ):
     elif( type=='out' ):
         self.do_query_out()
     elif( type=='category_in' ):
-        self.do_list_category_in();
+        self.do_query_category_in();
     elif( type=='category_out' ):
-        self.do_list_category_out()
+        self.do_query_category_out()
     elif( type=='search_category' ):
         self.do_search_category()
   
@@ -680,7 +697,55 @@ class Query( webapp.RequestHandler ):
         #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
         html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], sep, i['price'], sep, i['category'], sep, i['description'], sep, i['key'], line_sep)
         self.response.out.write( html )
+        
+  def do_query_category_in(self):
+    result = TradeCategory.gql( "Where user=:1 AND type=:2", users.get_current_user(), db.Category('in') )
+    items = []
+    for i in result :
+        item = {}
+        item['key'] = i.key()
+        item['user'] = i.user.nickname()
+        item['description'] = i.description
+        items.append( item )
+
+    template_values = {
+      'type': 'category_in',
+      'show_type': 'category',
+      'items': items,
+      'user': users.get_current_user()
+    }
     
+    #path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
+    #self.response.out.write( template.render( path, template_values ))
+    line_sep = '$\n'
+    sep      = '$#'
+    for i in items:
+        html = '%s%s%s%s' % ( i['key'], sep, i['description'], line_sep )
+        self.response.out.write( html )
+        
+  def do_query_category_out(self):
+    result = TradeCategory.gql( "Where user=:1 AND type=:2", users.get_current_user(), 'out' )
+    items = []
+    for i in result :
+        item = {}
+        item['key'] = i.key()
+        item['user'] = i.user.nickname()
+        item['description'] = i.description
+        items.append( item )
+
+    template_values = {
+      'type': 'category_out',
+      'show_type': 'category',
+      'items': items,
+      'user': users.get_current_user()
+    }
+    #path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
+    #self.response.out.write( template.render( path, template_values ))
+    line_sep = '$\n'
+    sep      = '$#'
+    for i in items:
+        html = '%s%s%s%s' % ( i['key'], sep, i['description'], line_sep )
+        self.response.out.write( html )
     
 application = webapp.WSGIApplication([
   ('/',      MainPage),
