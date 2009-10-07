@@ -39,7 +39,9 @@ $(function() {
     var g_category = new Array();
     $('img').css('border-width', 0);
     $('#ui-datepicker-div').css('z-index', 2000);
+    $('.applyLinkCursor').css('cursor', 'pointer');
     QueryData_Category();
+    
     
     $("#query_out").click( function(){
         g_query_type = QUERY_TYPE_OUT;
@@ -48,6 +50,11 @@ $(function() {
     $("#query_in").click(function() {
         g_query_type = QUERY_TYPE_IN;
         QueryData_Trade();
+    });
+    
+    $("#add_input_btn").click( function() {
+        //alert($("#add_example tbody").html());
+        $('#add_table tbody').append( $("#add_example tbody").html() );
     });
     
     Init_Dialog();
@@ -84,6 +91,10 @@ $(function() {
             buttons: {
                 'Delete': function() {
                     $(this).dialog('close');
+                    cmd = "list_delete?type="+g_query_type+"&item_key="+$('#delete_key').val();
+                    $.get( cmd, function callback(html){
+                                    alert('Success!');
+                                });
                 },
                 Cancel: function() {
                     $(this).dialog('close');
@@ -121,7 +132,13 @@ $(function() {
     $("#list_table").click(function() {
         alert($("#list_table tbody").children().length);
     })*/
-    
+    function Get_CategoryKey(desc){
+        for( var i=0 ; i < g_category.length ; i++ ){
+            if( g_category[i].description == desc )
+                return g_category[i].key;
+        }
+        return '';
+    }
     function QueryData_Category(){
         var type = "category_" + g_query_type;
         $.get("query?type="+type, QueryDataResult_Category);
@@ -196,6 +213,29 @@ $(function() {
         $("#select_year  option[value="+y+"]").attr('selected', true);
         $("#select_month option[value="+m+"]").attr('selected', true);
     }
+    function AssignEditForm(){
+        $(".img_edit").click( function(){
+            var tr = $(this).parent().parent();
+            $('#dialog_edit_trade').dialog('open');
+            $('#edit_key').val(   tr.attr('key')   );
+            $('#edit_price').val( tr.attr('price') );
+            $('#edit_time').val(  tr.attr('time')  );
+            $('#edit_description').val(  tr.attr('description') );
+            $("#edit_category option[value="+Get_CategoryKey(tr.attr('category'))+"]").attr('selected', true);
+            
+            $('#edit_time').datepicker({ dateFormat: 'yy-mm-dd' });
+        });
+        $('.img_edit').css('cursor', 'pointer');
+    }
+    function AssignDeleteForm(){
+        $(".img_delete").click( function(){
+            var tr = $(this).parent().parent();
+            $('#delete_key').val( tr.attr('key') );
+            
+            $('#dialog_delete').dialog('open');
+        });
+        $('.img_delete').css('cursor', 'pointer');
+    }
     function AppendTradeData(data){
         if( data.length < 5 ) return;
         var time  = data[0];
@@ -227,24 +267,8 @@ $(function() {
             $(this).children().eq(3).addClass('ListTableTH_category');
             $(this).children().eq(4).addClass('ListTableTH_description');
         });
-        
-        //alert( $("#list_table thead tr td img.img_edit").length );
-        $(".img_edit").click( function(){
-            var tr = $(this).parent().parent();
-            $('#dialog_edit_trade').dialog('open');
-            $('#edit_key').val(   tr.attr('key')   );
-            $('#edit_price').val( tr.attr('price') );
-            $('#edit_time').val(  tr.attr('time')  );
-            $('#edit_description').val(  tr.attr('description') );
-            
-            $('#edit_time').datepicker({ dateFormat: 'yy-mm-dd' });
-            
-            //alert( $('#ui-datepicker-div').length )
-        });
-        $(".img_delete").click( function(){
-            //alert($(this).attr('key'));
-            $('#dialog_delete').dialog('open');
-        });
+        AssignDeleteForm();
+        AssignEditForm();
     }
 });
 </script>
@@ -262,31 +286,58 @@ $(function() {
         <input type="hidden" name="type" value="{{type}}"/>
         
         <div id="search"  align="center">
-            <input name="key_words" type="text" size="50"/><input type="submit" value="??"/>
+            <input name="key_words" type="text" size="50"/><input type="submit" value="搜尋"/>
         </div>
         
     </form>
 
     <!--Menu-->
     <div id="menu">
-		<a href="list?type=category_in">收入類別</a>
-		<a href="list?type=category_out">支出類別</a>
-		<a href="list?type=in">收入</a>
-		<a href="list?type=out">支出</a>
-        <div id='query_out'>ajax支出</div>
-        <div id='query_in'>ajax收入</div>
+        <a href="list?type=category_in">收入類別</a>
+        <a href="list?type=category_out">支出類別</a>
+        <a href="list?type=in">收入</a>
+        <a href="list?type=out">支出</a>
+        <div id='query_out' class='applyLinkCursor'>ajax支出</div>
+        <div id='query_in'  class='applyLinkCursor'>ajax收入</div>
     </div>
     
+    <div id="add">
+        <table id='add_example' style='display:none'>
+            <tbody>
+                <tr id='add_example_tr'>
+                    <td><select            id='add_category'    name='add_category'></select></td>
+                    <td><input type="text" id="add_price"       name="add_price"         /></td>
+                    <td><input type="text" id="add_description" name="add_description"   /></td>
+                    <td><input type="text" id="add_time"        name="add_time" size='10'/></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <form id="form_add">
+            <fieldset>
+                <table id='add_table'>
+                    <thead>
+                        <tr>
+                            <th>類別</th><th>價格</th><th>說明</th><th>時間</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                    </tbody>
+                </table>
+            </fieldset>
+        </form>
+        <div id='add_input_btn'> Add Input </div>
+    </div>
     
     <div id="item_list">
         <div id='m_select_month'>
-            <img id='img_arrow_previous' alt='Previous' src='./img/previous.png'/>
+            <img id='img_arrow_previous' class='applyLinkCursor' alt='Previous' src='./img/previous.png'/>
               <select id="select_year"></select>
               <select id="select_month"></select>
-            <img id='img_arrow_next' alt='Next' src='./img/next.png'/>
+            <img id='img_arrow_next' class='applyLinkCursor' alt='Next' src='./img/next.png'/>
         </div>
         
-        {##### Item Data - TradeItem #####}
         <table id='list_table' border='0' align='center'>
             <thead> 
                 <tr>
@@ -301,15 +352,19 @@ $(function() {
     
     
     <div id='dialog_edit_trade' title='Edit'>
-        <form>
+        <form id='form_edit'>
             <fieldset>
-                價格 : <input type="text" id="edit_price"          class="text ui-widget-content ui-corner-all" /><br/>
-                說明 : <input type="text" id="edit_description"    class="text ui-widget-content ui-corner-all" /><br/>
-                日期 : <input type="text" id="edit_date" size='10' class="text ui-widget-content ui-corner-all" /><br/>
+                <input type="hidden"      id="edit_key"         name='edit_key'/>
+                類別 : <select            id='edit_category'    name='edit_category'></select> <br/>
+                價格 : <input type="text" id="edit_price"       name="edit_price"          class="text ui-widget-content ui-corner-all" /> <br/>
+                說明 : <input type="text" id="edit_description" name="edit_description"    class="text ui-widget-content ui-corner-all" /> <br/>
+                日期 : <input type="text" id="edit_time"        name="edit_time" size='10' class="text ui-widget-content ui-corner-all" /> <br/>
             </fieldset>
         </form>
+        
     </div>
     <div id='dialog_delete' title='Warning!'>
+        <input type="hidden" id="delete_key" name='delete_key'/>
         確定要刪除!?
     </div>
 </body>
