@@ -27,6 +27,8 @@ $(function() {
     var QUERY_TYPE_OUT = 'out';
     var QUERY_TYPE_IN  = 'in';
     
+    var MAX_ADD_NUM = 10;
+    
     //Class
     function CCategory(key, description){
         this.key = key;
@@ -53,8 +55,12 @@ $(function() {
     });
     
     $("#add_input_btn").click( function() {
-        //alert($("#add_example tbody").html());
+        var add_tr_len = $('#add_table tbody tr').length;
+        if( add_tr_len >= MAX_ADD_NUM )
+            return;
+        $('#add_table').css('display','block');
         $('#add_table tbody').append( $("#add_example tbody").html() );
+        AssignCategory2Select( $('#add_table tbody tr').eq(add_tr_len).find('.add_category') );
     });
     
     Init_Dialog();
@@ -156,11 +162,13 @@ $(function() {
             g_category[i] = new CCategory( _data[0], _data[1] );
         }
         
+        AssignCategory2Select( $('#edit_category') );
+        /*
         $('#edit_category').children().remove();
         for(var i =0 ; i < g_category.length ; i++ ){
             var s = '<option value="'+g_category[i].key+'">'+g_category[i].description+'</option>';
             $('#edit_category').append(s);
-        }
+        }*/
     }
     
     function QueryData_Trade() {
@@ -209,6 +217,13 @@ $(function() {
         $('#list_table tbody tr').alternate({odd:'ListTableTH_odd', even:'ListTableTH_even', hover:'ListTableTH_hover'});
     }
     
+    function AssignCategory2Select( select ){
+        select.children().remove();
+        for(var i =0 ; i < g_category.length ; i++ ){
+            var s = '<option value="'+g_category[i].key+'">'+g_category[i].description+'</option>';
+            select.append(s);
+        }
+    }
     function AssignSelectDate(y,m){
         $("#select_year  option[value="+y+"]").attr('selected', true);
         $("#select_month option[value="+m+"]").attr('selected', true);
@@ -301,21 +316,26 @@ $(function() {
         <div id='query_in'  class='applyLinkCursor'>ajax收入</div>
     </div>
     
-    <div id="add">
+    <div id="add" width='800' align='center'>
         <table id='add_example' style='display:none'>
             <tbody>
                 <tr id='add_example_tr'>
+                    <!--
                     <td><select            id='add_category'    name='add_category'></select></td>
                     <td><input type="text" id="add_price"       name="add_price"         /></td>
                     <td><input type="text" id="add_description" name="add_description"   /></td>
-                    <td><input type="text" id="add_time"        name="add_time" size='10'/></td>
+                    <td><input type="text" id="add_time"        name="add_time" size='10'/></td>-->
+                    <td><select            class='add_category'></select></td>
+                    <td><input type="text" class="add_price"         /></td>
+                    <td><input type="text" class="add_description"   /></td>
+                    <td><input type="text" class="add_time" size='10'/></td>
                 </tr>
             </tbody>
         </table>
         
+        <div id='add_input_btn' align='center'> Add Input <img id='img_add' class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
         <form id="form_add">
-            <fieldset>
-                <table id='add_table'>
+                <table id='add_table' style='display:none'>
                     <thead>
                         <tr>
                             <th>類別</th><th>價格</th><th>說明</th><th>時間</th>
@@ -325,9 +345,7 @@ $(function() {
                     <tbody>
                     </tbody>
                 </table>
-            </fieldset>
         </form>
-        <div id='add_input_btn'> Add Input </div>
     </div>
     
     <div id="item_list">
