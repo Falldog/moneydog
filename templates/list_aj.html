@@ -209,7 +209,7 @@ $(function() {
         $("#list_table tbody").append(new_html);
         
         $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
-        $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_delete' key='"+key+"' alt='?�除' src='./img/delete.png'/>");
+        $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_delete' key='"+key+"' alt='刪除' src='./img/delete.png'/>");
         //AssignCss_ListTableTrade(key);
     }
     
@@ -252,7 +252,7 @@ $(function() {
 </head>
 <body>
     
-    <div id="top_bar">{{user}}<a href="logout">?�出</a></div>
+    <div id="top_bar">{{user}}<a href="logout">登出</a></div>
     
     
     <div id="money_dog_header">Money Dog</div>
@@ -262,19 +262,19 @@ $(function() {
         <input type="hidden" name="type" value="{{type}}"/>
         
         <div id="search"  align="center">
-            <input name="key_words" type="text" size="50"/><input type="submit" value="?��?"/>
+            <input name="key_words" type="text" size="50"/><input type="submit" value="??"/>
         </div>
         
     </form>
 
     <!--Menu-->
     <div id="menu">
-        <a href="list?type=category_in">?�入類別</a>
-        <a href="list?type=category_out">?�出類別</a>
-        <a href="list?type=in">?�入</a>
-        <a href="list?type=out">?�出</a>
-        <div id='query_out'>ajax?�出</div>
-        <div id='query_in'>ajax?�入</div>
+		<a href="list?type=category_in">收入類別</a>
+		<a href="list?type=category_out">支出類別</a>
+		<a href="list?type=in">收入</a>
+		<a href="list?type=out">支出</a>
+        <div id='query_out'>ajax支出</div>
+        <div id='query_in'>ajax收入</div>
     </div>
     
     
@@ -290,7 +290,7 @@ $(function() {
         <table id='list_table' border='0' align='center'>
             <thead> 
                 <tr>
-                    <th></th><th>?��?</th><th>?�格</th><th>類別</th><th>說�?</th>
+                    <th></th><th>時間</th><th>價格</th><th>類別</th><th>說明</th>
                 </tr>
             </thead>
             
@@ -301,18 +301,16 @@ $(function() {
     
     
     <div id='dialog_edit_trade' title='Edit'>
-        <form id='form_edit'>
+        <form>
             <fieldset>
-                <input type="hidden"      id="edit_key"         name='edit_key'/>
-                類別 : <select            id='edit_category'    name='edit_category'></select> <br/>
-                ?�格 : <input type="text" id="edit_price"       name="edit_price"          class="text ui-widget-content ui-corner-all" /> <br/>
-                說�? : <input type="text" id="edit_description" name="edit_description"    class="text ui-widget-content ui-corner-all" /> <br/>
-                ?��? : <input type="text" id="edit_time"        name="edit_time" size='10' class="text ui-widget-content ui-corner-all" /> <br/>
+                價格 : <input type="text" id="edit_price"          class="text ui-widget-content ui-corner-all" /><br/>
+                說明 : <input type="text" id="edit_description"    class="text ui-widget-content ui-corner-all" /><br/>
+                日期 : <input type="text" id="edit_date" size='10' class="text ui-widget-content ui-corner-all" /><br/>
             </fieldset>
         </form>
     </div>
     <div id='dialog_delete' title='Warning!'>
-        確�?要刪???
+        確定要刪除!?
     </div>
 </body>
 </html>
