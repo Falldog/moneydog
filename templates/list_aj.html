@@ -121,15 +121,8 @@ $(function() {
                 opacity: 0.5
             },
             buttons: {
-                'Add': function() {
-                    //$(this).dialog('close');
-                    $('#add_progressbar').css('display', 'block');
-                    var v = $('#add_progressbar').progressbar('option', 'value');
-                    $('#add_progressbar').progressbar('option', 'value', v+10);
-                },
-                Cancel: function() {
-                    $(this).dialog('close');
-                }
+                'Add': onAddDialog_AddClick,
+                Cancel: onAddDialog_CancelClick
             },
             close: function(event, ui) {
                 $('#ui-datepicker-div').hide()
@@ -147,16 +140,8 @@ $(function() {
                 opacity: 0.5
             },
             buttons: {
-                'Delete': function() {
-                    $(this).dialog('close');
-                    cmd = "list_delete?type="+g_query_type+"&item_key="+$('#delete_key').val();
-                    $.get( cmd, function callback(html){
-                                    alert('Success!');
-                                });
-                },
-                Cancel: function() {
-                    $(this).dialog('close');
-                }
+                'Delete': onDeleteDialog_DeleteClick,
+                Cancel: onDeleteDialog_CancelClick
             }
         });
         $("#dialog_edit_trade").dialog({
@@ -289,6 +274,25 @@ $(function() {
         $("#select_month").bind('change', function(e){
             alert("change:" + $("#select_month").val() );
         })
+    }
+    
+    function onDeleteDialog_DeleteClick(){
+        $(this).dialog('close');
+        cmd = "list_delete?type="+g_query_type+"&item_key="+$('#delete_key').val();
+        $.get( cmd, function callback(html){
+                        alert('Success!');
+                    });
+    }
+    function onDeleteDialog_CancelClick(){
+        $(this).dialog('close');
+    }
+    function onAddDialog_AddClick(){
+        $('#add_progressbar').css('display', 'block');
+        var v = $('#add_progressbar').progressbar('option', 'value');
+        $('#add_progressbar').progressbar('option', 'value', v+10);
+    }
+    function onAddDialog_CancelClick(){
+        $(this).dialog('close');
     }
     
     function FlushListTable(){
@@ -462,6 +466,7 @@ $(function() {
         </form>
         <div id="add_progressbar"></div>
     </div>    
+    
 </body>
 </html>
 
