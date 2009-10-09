@@ -54,16 +54,16 @@ $(function() {
         QueryData_Trade();
     });
     
-    $("#add_input_btn").click( function() {
-        var add_tr_len = $('#add_table tbody tr').length;
-        if( add_tr_len >= MAX_ADD_NUM )
-            return;
-        $('#add_table').css('display','block');
-        $('#add_table tbody').append( $("#add_example tbody").html() );
-        AssignCategory2Select( $('#add_table tbody tr').eq(add_tr_len).find('.add_category') );
+    //$("#add_input_btn").click( CreateInsertField );
+    $("#add_input_btn").click( function(){
+        $("#dialog_add").dialog('open');
+        $('#add_progressbar').progressbar({value: 0});
+        $('#add_progressbar').css('display', 'none');
     });
+    $("#add_input_filed").click( CreateInsertField );
     
     Init_Dialog();
+    Init_MessageBox();
     CreateSelectDate();
     $("#img_arrow_previous").click( function(){
         var y = parseInt( $("#select_year").val() );
@@ -83,7 +83,59 @@ $(function() {
         QueryData_Trade();
     });
     
+    function Init_MessageBox(){
+        $('body').append('<div id="m_MessageBox" title="Message"></div>')
+        $('#m_MessageBox').dialog({
+            autoOpen: false,
+            bgiframe: true,
+            resizable: false,
+            height:200,
+            modal: true,
+            overlay: {
+                backgroundColor: '#000',
+                opacity: 0.5
+            },
+            buttons: {
+                'OK': function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    }
+    function MessageBox( msg ){
+        $('#m_MessageBox').text(msg);
+        $('#m_MessageBox').dialog('open');
+    }
+    
     function Init_Dialog(){
+        $('#dialog_add').dialog({
+            autoOpen: false,
+            bgiframe: true,
+            resizable: false,
+            height:600,
+            width:800,
+            modal: true,
+            resizable: true,
+            overlay: {
+                backgroundColor: '#000',
+                opacity: 0.5
+            },
+            buttons: {
+                'Add': function() {
+                    //$(this).dialog('close');
+                    $('#add_progressbar').css('display', 'block');
+                    var v = $('#add_progressbar').progressbar('option', 'value');
+                    $('#add_progressbar').progressbar('option', 'value', v+10);
+                },
+                Cancel: function() {
+                    $(this).dialog('close');
+                }
+            },
+            close: function(event, ui) {
+                $('#ui-datepicker-div').hide()
+            }
+        });
+        
         $('#dialog_delete').dialog({
             autoOpen: false,
             bgiframe: true,
@@ -133,11 +185,17 @@ $(function() {
         
     }
     
-    //For TEST
-    /*
-    $("#list_table").click(function() {
-        alert($("#list_table tbody").children().length);
-    })*/
+    function Get_TodayStr(){
+        var now = new Date();
+        var y = now.getFullYear(); 
+        var m = (now.getMonth()+1);
+        var d = now.getDate();
+        var str = '';
+        str += y;
+        str +=  '-' + ((m < 10)? '0'+m : m);
+        str +=  '-' + ((d < 10)? '0'+d : d);
+        return str;
+    }
     function Get_CategoryKey(desc){
         for( var i=0 ; i < g_category.length ; i++ ){
             if( g_category[i].description == desc )
@@ -150,7 +208,6 @@ $(function() {
         $.get("query?type="+type, QueryDataResult_Category);
     }
     function QueryDataResult_Category(html){
-        //return;
         delete g_category;
         g_category = new Array();
         data = html.split( QUERY_SEP_LINE );
@@ -163,12 +220,6 @@ $(function() {
         }
         
         AssignCategory2Select( $('#edit_category') );
-        /*
-        $('#edit_category').children().remove();
-        for(var i =0 ; i < g_category.length ; i++ ){
-            var s = '<option value="'+g_category[i].key+'">'+g_category[i].description+'</option>';
-            $('#edit_category').append(s);
-        }*/
     }
     
     function QueryData_Trade() {
@@ -193,7 +244,34 @@ $(function() {
         AssignCss_ListTableAllTrade();
     }
     
-    
+    function CreateInsertField(){
+        if( g_category.length == 0 ){
+            MessageBox('尚未載入Category!');
+            return
+        }
+        
+        var add_tr_len = $('#add_table tbody tr').length;
+        if( add_tr_len >= MAX_ADD_NUM ){
+            MessageBox('數量已達上限! 等下一輪吧你!');
+            return;
+        }
+        
+        //$('#add_table').css('display','block');
+        $('#add_table tbody').append( $("#add_example tbody").html() );
+        var new_tr = $('#add_table tbody tr').eq(add_tr_len);
+        AssignCategory2Select( new_tr.find('.add_category') );
+        new_tr.find('.remove_add_filed').click( function(){
+                                         $(this).parent().parent().remove();//Remove this <tr>
+                                         });
+        var new_tr_date = '';
+        if( $('#add_table tbody tr').length > 1)
+            new_tr_date = $('#add_table tbody tr').eq(add_tr_len-1).find('.add_time').val();
+        else if( new_tr_date=='' ){
+            new_tr_date = Get_TodayStr();
+        }
+        new_tr.find('.add_time').datepicker({ dateFormat: 'yy-mm-dd' })
+                                .val( new_tr_date );
+    }
     function CreateSelectDate(){
         var curDate = new Date();
         var curY = curDate.getFullYear();
@@ -314,38 +392,7 @@ $(function() {
         <a href="list?type=out">支出</a>
         <div id='query_out' class='applyLinkCursor'>ajax支出</div>
         <div id='query_in'  class='applyLinkCursor'>ajax收入</div>
-    </div>
-    
-    <div id="add" width='800' align='center'>
-        <table id='add_example' style='display:none'>
-            <tbody>
-                <tr id='add_example_tr'>
-                    <!--
-                    <td><select            id='add_category'    name='add_category'></select></td>
-                    <td><input type="text" id="add_price"       name="add_price"         /></td>
-                    <td><input type="text" id="add_description" name="add_description"   /></td>
-                    <td><input type="text" id="add_time"        name="add_time" size='10'/></td>-->
-                    <td><select            class='add_category'></select></td>
-                    <td><input type="text" class="add_price"         /></td>
-                    <td><input type="text" class="add_description"   /></td>
-                    <td><input type="text" class="add_time" size='10'/></td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div id='add_input_btn' align='center'> Add Input <img id='img_add' class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
-        <form id="form_add">
-                <table id='add_table' style='display:none'>
-                    <thead>
-                        <tr>
-                            <th>類別</th><th>價格</th><th>說明</th><th>時間</th>
-                        </tr>
-                    </thead>
-                    
-                    <tbody>
-                    </tbody>
-                </table>
-        </form>
+        <div id='add_input_btn'> Add Input <img id='img_add' class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
     </div>
     
     <div id="item_list">
@@ -368,7 +415,7 @@ $(function() {
         </table>
     </div>
     
-    
+    <!-- Dialog -->
     <div id='dialog_edit_trade' title='Edit'>
         <form id='form_edit'>
             <fieldset>
@@ -379,12 +426,42 @@ $(function() {
                 日期 : <input type="text" id="edit_time"        name="edit_time" size='10' class="text ui-widget-content ui-corner-all" /> <br/>
             </fieldset>
         </form>
-        
     </div>
+    
     <div id='dialog_delete' title='Warning!'>
         <input type="hidden" id="delete_key" name='delete_key'/>
         確定要刪除!?
     </div>
+    
+    <div id="dialog_add" title='Add' width='800' align='center'>
+        <!-- Example -->
+        <table id='add_example' style='display:none'>
+            <tbody>
+                <tr id='add_example_tr'>
+                    <td><select            class='add_category'></select></td>
+                    <td><input type="text" class="add_price"         /></td>
+                    <td><input type="text" class="add_description"   /></td>
+                    <td><input type="text" class="add_time" size='10'/></td>
+                    <td><img class="remove_add_filed applyLinkCursor" alt='Remove This Filed' src='./img/delete.png'></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div id='add_input_filed'> Add Input <img class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
+        <form id="form_add">
+                <table id='add_table'>
+                    <thead>
+                        <tr>
+                            <th>類別</th><th>價格</th><th>說明</th><th>時間</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                    </tbody>
+                </table>
+        </form>
+        <div id="add_progressbar"></div>
+    </div>    
 </body>
 </html>
 

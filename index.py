@@ -651,7 +651,7 @@ class Query( webapp.RequestHandler ):
     for i in query :
         item = {}
         item['key'] = i.key()
-        item['price'] = IntAddComma(i.price)
+        item['price'] = i.price
         item['category'] = i.category.description
         item['description'] = i.description
         item['date'] = i.date
@@ -682,9 +682,7 @@ class Query( webapp.RequestHandler ):
     for i in query :
         item = {}
         item['key'] = i.key()
-        item['price'] = IntAddComma(i.price)
-        item['_price'] = i.price
-        item['_category'] = i.category
+        item['price'] = i.price
         item['category'] = i.category.description
         item['description'] = i.description
         item['date'] = i.date
