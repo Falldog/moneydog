@@ -11,6 +11,7 @@
 <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery-alternate.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript">
     $(function(){
         $('#item_date').datepicker({ dateFormat: 'yy-mm-dd' });
@@ -26,6 +27,8 @@ $(function() {
     
     var QUERY_TYPE_OUT = 'out';
     var QUERY_TYPE_IN  = 'in';
+    var QUERY_TYPE_CATEGORY_OUT = 'category_out';
+    var QUERY_TYPE_CATEGORY_IN  = 'category_in';
     
     var MAX_ADD_NUM = 10;
     
@@ -42,16 +45,33 @@ $(function() {
     $('img').css('border-width', 0);
     $('#ui-datepicker-div').css('z-index', 2000);
     $('.applyLinkCursor').css('cursor', 'pointer');
+    $('#category_table').hide();
     QueryData_Category();
     
     
     $("#query_out").click( function(){
+        $('#list_table').show();
+        $('#category_table').hide();
         g_query_type = QUERY_TYPE_OUT;
         QueryData_Trade();
     });
     $("#query_in").click(function() {
+        $('#list_table').show();
+        $('#category_table').hide();
         g_query_type = QUERY_TYPE_IN;
         QueryData_Trade();
+    });
+    $("#query_category_out").click( function(){
+        $('#list_table').hide();
+        $('#category_table').show();
+        g_query_type = QUERY_TYPE_CATEGORY_OUT;
+        QueryData_Category();
+    });
+    $("#query_category_in").click(function() {
+        $('#list_table').hide();
+        $('#category_table').show();
+        g_query_type = QUERY_TYPE_CATEGORY_IN;
+        QueryData_Category();
     });
     
     $("#add_input_btn").click( function(){
@@ -82,30 +102,8 @@ $(function() {
         AssignSelectDate(y,m);
         QueryData_Trade();
     });
-    
-    function Init_MessageBox(){
-        $('body').append('<div id="m_MessageBox" title="Message"></div>')
-        $('#m_MessageBox').dialog({
-            autoOpen: false,
-            bgiframe: true,
-            resizable: false,
-            height:200,
-            modal: true,
-            overlay: {
-                backgroundColor: '#000',
-                opacity: 0.5
-            },
-            buttons: {
-                'OK': function() {
-                    $(this).dialog('close');
-                }
-            }
-        });
-    }
-    function MessageBox( msg ){
-        $('#m_MessageBox').text(msg);
-        $('#m_MessageBox').dialog('open');
-    }
+    g_query_type = QUERY_TYPE_OUT;
+    QueryData_Trade();
     
     function Init_Dialog(){
         $('#dialog_add').dialog({
@@ -153,10 +151,13 @@ $(function() {
             buttons: {
                 'OK': function() {
                     $(this).dialog('close');
+                    ShowLoader();
                     var cmd = $('#form_edit').serialize();
                     cmd = "list_edit?type="+g_query_type+"&do=aj&"+cmd;
                     $.get( cmd, function callback(html){
-                                    alert('Success!');
+                                    RefreshPage();
+                                    //alert('Success!');
+                                    HideLoader();
                                 });
                 },
                 Cancel: function() {
@@ -170,17 +171,6 @@ $(function() {
         
     }
     
-    function Get_TodayStr(){
-        var now = new Date();
-        var y = now.getFullYear(); 
-        var m = (now.getMonth()+1);
-        var d = now.getDate();
-        var str = '';
-        str += y;
-        str +=  '-' + ((m < 10)? '0'+m : m);
-        str +=  '-' + ((d < 10)? '0'+d : d);
-        return str;
-    }
     function Get_CategoryKey(desc){
         for( var i=0 ; i < g_category.length ; i++ ){
             if( g_category[i].description == desc )
@@ -189,8 +179,11 @@ $(function() {
         return '';
     }
     function QueryData_Category(){
-        var type = "category_" + g_query_type;
+        var type = g_query_type;
+        if( g_query_type == QUERY_TYPE_OUT || g_query_type == QUERY_TYPE_IN )
+            type = "category_" + g_query_type;
         $.get("query?type="+type, QueryDataResult_Category);
+        ShowLoader();
     }
     function QueryDataResult_Category(html){
         delete g_category;
@@ -205,6 +198,8 @@ $(function() {
         }
         
         AssignCategory2Select( $('#edit_category') );
+        AssignCategory2Table();
+        HideLoader();
     }
     
     function QueryData_Trade() {
@@ -212,6 +207,7 @@ $(function() {
         var y = $("#select_year").val();
         var m = $("#select_month").val();
         $.get("query?type="+g_query_type+"&year="+y+"&month="+m, QueryDataResult_Trade);
+        ShowLoader();
         return false;
     }
     function QueryDataResult_Trade(html) {
@@ -225,8 +221,8 @@ $(function() {
             item = data[i].split( QUERY_SEP );
             AppendTradeData(item);
         }
-        FlushListTable();
         AssignCss_ListTableAllTrade();
+        HideLoader();
     }
     
     function CreateSelectDate(){
@@ -256,6 +252,7 @@ $(function() {
                         //alert('Success!');
                     });
         $('#list_table tr[key='+ key +']').remove();
+        $('#category_table tr[key='+ key +']').remove();
     }
     function onDeleteDialog_CancelClick(){
         $(this).dialog('close');
@@ -264,6 +261,7 @@ $(function() {
         MessageBox('Success!!!');
         $('#dialog_add').dialog('close');
         $('#add_table tbody tr').remove();
+        RefreshPage();
     }
     function onAddDialog_AddCallback(){
         var perc = 100.0 / $('#add_table tbody tr').length;
@@ -319,10 +317,32 @@ $(function() {
                                 .val( new_tr_date );
     }
     
-    function FlushListTable(){
-        $('#list_table tbody tr').alternate({odd:'ListTableTH_odd', even:'ListTableTH_even', hover:'ListTableTH_hover'});
+    function ShowLoader(){
+        $('#imgLoader').show();
+    }
+    function HideLoader(){
+        $('#imgLoader').hide();
     }
     
+    function RefreshPage(){
+        QueryData_Trade();
+    }
+    
+    function AssignCategory2Table(){
+        $("#category_table tbody tr").remove();
+        for(var i =0 ; i < g_category.length ; i++ ){
+            var key  = g_category[i].key;
+            var desc = g_category[i].description;
+            new_html = '<tr key="'+key+'" description="'+desc+'">'
+                         +'<td></td> <td>'+desc+'</td>'
+                         +'</tr>';
+            $("#category_table tbody").append(new_html);
+            
+            $("#category_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
+            $("#category_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_delete' key='"+key+"' alt='刪除' src='./img/delete.png'/>");
+        }
+        AssignCss_CategoryTable();
+    }
     function AssignCategory2Select( select ){
         select.children().remove();
         for(var i =0 ; i < g_category.length ; i++ ){
@@ -334,7 +354,7 @@ $(function() {
         $("#select_year  option[value="+y+"]").attr('selected', true);
         $("#select_month option[value="+m+"]").attr('selected', true);
     }
-    function AssignEditForm(){
+    function AssignEditTradeForm(){
         $(".img_edit").click( function(){
             var tr = $(this).parent().parent();
             $('#dialog_edit_trade').dialog('open');
@@ -381,6 +401,7 @@ $(function() {
         $("#list_table tbody tr[key="+key+"] td:eq(4)").addClass('ListTableTH_description');
     }
     function AssignCss_ListTableAllTrade(){
+        $('#list_table tbody tr').alternate({odd:'ListTableTH_odd', even:'ListTableTH_even', hover:'ListTableTH_hover'});
         $("#list_table thead tr").addClass('ListTableTH_header');
         $("#list_table tbody tr").each( function(i){
             $(this).children().eq(1).addClass('ListTableTH_time');
@@ -389,7 +410,15 @@ $(function() {
             $(this).children().eq(4).addClass('ListTableTH_description');
         });
         AssignDeleteForm();
-        AssignEditForm();
+        AssignEditTradeForm();
+    }
+    function AssignCss_CategoryTable(){
+        $('#category_table tbody tr').alternate({odd:'ListTableTH_odd', even:'ListTableTH_even', hover:'ListTableTH_hover'});
+        $("#category_table thead tr").addClass('ListTableTH_header');
+        $("#category_table tbody tr").each( function(i){
+            $(this).children().eq(1).addClass('ListTableTH_category');
+        });
+        AssignDeleteForm();
     }
 });
 </script>
@@ -418,12 +447,15 @@ $(function() {
         <a href="list?type=category_out">支出類別</a>
         <a href="list?type=in">收入</a>
         <a href="list?type=out">支出</a>
+        <div id='query_category_out' class='applyLinkCursor'>ajax支出類別</div>
+        <div id='query_category_in'  class='applyLinkCursor'>ajax收入類別</div>
         <div id='query_out' class='applyLinkCursor'>ajax支出</div>
         <div id='query_in'  class='applyLinkCursor'>ajax收入</div>
         <div id='add_input_btn'> Add Input <img id='img_add' class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
     </div>
     
-    <div id="item_list">
+    <!-- Trad List -->
+    <div id="trade_list">
         <div id='m_select_month'>
             <img id='img_arrow_previous' class='applyLinkCursor' alt='Previous' src='./img/previous.png'/>
               <select id="select_year"></select>
@@ -438,10 +470,24 @@ $(function() {
                 </tr>
             </thead>
             
-            <tbody>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
+    
+    <!-- Category List -->
+    <div id="category_list">
+        <table id='category_table' border='0' align='center'>
+            <thead> 
+                <tr>
+                    <th></th><th>類別</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    
+    <!--Loader-->
+    <div><img id='imgLoader' src='./img/loader.gif'/></div>
     
     <!-- Dialog -->
     <div id='dialog_edit_trade' title='Edit'>

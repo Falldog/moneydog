@@ -41,7 +41,7 @@ a:hover {text-decoration: underline; color: blue;}
 }
 
 /********************  <Item List>  *********************/
-#item_list
+#trade_list
 {
     width: 800px;
     margin-left:  auto;
@@ -181,6 +181,15 @@ td.stat_price
 
 
 
+
+/*////////////////////////////////////////////////////*/
+#imgLoader
+{
+    position:fixed; 
+    z-index: 9999;
+    top:50%;
+    left:50%;
+}
 
 /*////////////////////////////////////////////////////*/
 .ListTableTH_header
