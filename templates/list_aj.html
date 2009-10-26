@@ -105,6 +105,18 @@ $(function() {
     g_query_type = QUERY_TYPE_OUT;
     QueryData_Trade();
     
+    
+    function IsBrowseTrade(){
+        if(g_query_type==QUERY_TYPE_OUT || g_query_type==QUERY_TYPE_IN)
+            return true;
+        return false;
+    }
+    function IsBrowseCategory(){
+        if(g_query_type==QUERY_TYPE_CATEGORY_OUT || g_query_type==QUERY_TYPE_CATEGORY_IN)
+            return true;
+        return false;
+    }
+    
     function Init_Dialog(){
         $('#dialog_add').dialog({
             autoOpen: false,
@@ -152,11 +164,36 @@ $(function() {
                 'OK': function() {
                     $(this).dialog('close');
                     ShowLoader();
-                    var cmd = $('#form_edit').serialize();
+                    var cmd = $('#form_edit_trade').serialize();
                     cmd = "list_edit?type="+g_query_type+"&do=aj&"+cmd;
                     $.get( cmd, function callback(html){
                                     RefreshPage();
-                                    //alert('Success!');
+                                    HideLoader();
+                                });
+                },
+                Cancel: function() {
+                    $(this).dialog('close');
+                }
+            },
+            close: function(event, ui) {
+                $('#ui-datepicker-div').hide()
+            }
+        });
+            
+        $("#dialog_edit_category").dialog({
+            bgiframe: true,
+            autoOpen: false,
+            height: 300,
+            width:  400,
+            modal: true,
+            buttons: {
+                'OK': function() {
+                    $(this).dialog('close');
+                    ShowLoader();
+                    var cmd = $('#form_edit_category').serialize();
+                    cmd = "list_edit?type="+g_query_type+"&do=aj&"+cmd;
+                    $.get( cmd, function callback(html){
+                                    RefreshPage();
                                     HideLoader();
                                 });
                 },
@@ -325,7 +362,10 @@ $(function() {
     }
     
     function RefreshPage(){
-        QueryData_Trade();
+        if( IsBrowseTrade() )
+            QueryData_Trade();
+        else if( IsBrowseCategory() )
+            QueryData_Category();
     }
     
     function AssignCategory2Table(){
@@ -338,7 +378,7 @@ $(function() {
                          +'</tr>';
             $("#category_table tbody").append(new_html);
             
-            $("#category_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
+            $("#category_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit_category'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
             $("#category_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_delete' key='"+key+"' alt='刪除' src='./img/delete.png'/>");
         }
         AssignCss_CategoryTable();
@@ -355,7 +395,7 @@ $(function() {
         $("#select_month option[value="+m+"]").attr('selected', true);
     }
     function AssignEditTradeForm(){
-        $(".img_edit").click( function(){
+        $(".img_edit_trade").click( function(){
             var tr = $(this).parent().parent();
             $('#dialog_edit_trade').dialog('open');
             $('#edit_key').val(   tr.attr('key')   );
@@ -366,7 +406,16 @@ $(function() {
             
             $('#edit_time').datepicker({ dateFormat: 'yy-mm-dd' });
         });
-        $('.img_edit').css('cursor', 'pointer');
+        $('.img_edit_trade').css('cursor', 'pointer');
+    }
+    function AssignEditCategoryForm(){
+        $(".img_edit_category").click( function(){
+            var tr = $(this).parent().parent();
+            $('#dialog_edit_category').dialog('open');
+            $('#edit_cate_key').val( tr.attr('key') );
+            $('#edit_cate_description').val( tr.attr('description') );
+        });
+        $('.img_edit_category').css('cursor', 'pointer');
     }
     function AssignDeleteForm(){
         $(".img_delete").click( function(){
@@ -389,7 +438,7 @@ $(function() {
                      +'</tr>'
         $("#list_table tbody").append(new_html);
         
-        $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
+        $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit_trade'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
         $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_delete' key='"+key+"' alt='刪除' src='./img/delete.png'/>");
         //AssignCss_ListTableTrade(key);
     }
@@ -419,6 +468,7 @@ $(function() {
             $(this).children().eq(1).addClass('ListTableTH_category');
         });
         AssignDeleteForm();
+        AssignEditCategoryForm();
     }
 });
 </script>
@@ -489,15 +539,25 @@ $(function() {
     <!--Loader-->
     <div><img id='imgLoader' src='./img/loader.gif'/></div>
     
-    <!-- Dialog -->
-    <div id='dialog_edit_trade' title='Edit'>
-        <form id='form_edit'>
+    <!-- Dialog Edit Trade -->
+    <div id='dialog_edit_trade' title='Edit Trade'>
+        <form id='form_edit_trade'>
             <fieldset>
                 <input type="hidden"      id="edit_key"         name='edit_key'/>
                 類別 : <select            id='edit_category'    name='edit_category'></select> <br/>
                 價格 : <input type="text" id="edit_price"       name="edit_price"          class="text ui-widget-content ui-corner-all" /> <br/>
                 說明 : <input type="text" id="edit_description" name="edit_description"    class="text ui-widget-content ui-corner-all" /> <br/>
                 日期 : <input type="text" id="edit_time"        name="edit_time" size='10' class="text ui-widget-content ui-corner-all" /> <br/>
+            </fieldset>
+        </form>
+    </div>
+    
+    <!-- Dialog Edit Category -->
+    <div id='dialog_edit_category' title='Edit Category'>
+        <form id='form_edit_category'>
+            <fieldset>
+                <input type="hidden"      id="edit_cate_key"         name='edit_key'/>
+                說明 : <input type="text" id="edit_cate_description" name="edit_description"    class="text ui-widget-content ui-corner-all" /> <br/>
             </fieldset>
         </form>
     </div>

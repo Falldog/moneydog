@@ -471,8 +471,8 @@ class ListEdit( webapp.RequestHandler ):
             item.save()
             
         elif( type=='category_in' or type=='category_out' ):
-            item = db.get( db.Key( self.request.get('item_key') ) )
-            item.description = self.request.get('item_description')
+            item = db.get( db.Key( self.request.get('edit_key') ) )
+            item.description = self.request.get('edit_description')
             item.put()
         self.redirect('/list?type='+type)
 
