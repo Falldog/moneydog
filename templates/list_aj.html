@@ -21,7 +21,7 @@
     var type='{{type}}';
 
 $(function() {
-    //Marco
+    //Const
     var QUERY_SEP      = '$#';
     var QUERY_SEP_LINE = '$\n';
     
@@ -537,7 +537,9 @@ $(function() {
     </div>
     
     <!--Loader-->
-    <div><img id='imgLoader' src='./img/loader.gif'/></div>
+    <div id='imgLoader'>
+        <img id='_imgLoader' src='./img/loader.gif'/>
+    </div>
     
     <!-- Dialog Edit Trade -->
     <div id='dialog_edit_trade' title='Edit Trade'>
