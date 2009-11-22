@@ -405,7 +405,7 @@ class ListAdd( webapp.RequestHandler ):
     category = TradeCategory()
     category.user = users.get_current_user()
     category.type = db.Category('in')
-    category.description = self.request.get('item_caption')
+    category.description = self.request.get('item_description')
     category.put()
 
     #self.response.headers['Content-Type'] = 'text/plain'
@@ -420,7 +420,7 @@ class ListAdd( webapp.RequestHandler ):
     category = TradeCategory()
     category.user = users.get_current_user()
     category.type = 'out'
-    category.description = self.request.get('item_caption')
+    category.description = self.request.get('item_description')
     category.put()
 
     self.redirect('/list?type=category_out')

@@ -50,25 +50,25 @@ $(function() {
     
     
     $("#query_out").click( function(){
-        $('#list_table').show();
+        $('#trade_list').show();
         $('#category_table').hide();
         g_query_type = QUERY_TYPE_OUT;
         QueryData_Trade();
     });
     $("#query_in").click(function() {
-        $('#list_table').show();
+        $('#trade_list').show();
         $('#category_table').hide();
         g_query_type = QUERY_TYPE_IN;
         QueryData_Trade();
     });
     $("#query_category_out").click( function(){
-        $('#list_table').hide();
+        $('#trade_list').hide();
         $('#category_table').show();
         g_query_type = QUERY_TYPE_CATEGORY_OUT;
         QueryData_Category();
     });
     $("#query_category_in").click(function() {
-        $('#list_table').hide();
+        $('#trade_list').hide();
         $('#category_table').show();
         g_query_type = QUERY_TYPE_CATEGORY_IN;
         QueryData_Category();
@@ -78,6 +78,12 @@ $(function() {
         $("#dialog_add").dialog('open');
         $('#add_progressbar').progressbar({value: 0});
         $('#add_progressbar').css('display', 'none');
+        onAddDialog_RemoveAll();
+        if( IsBrowseTrade() )
+            $('#add_table thead').append( $("#add_example thead").html() );
+        else
+            $('#add_table thead').append( $("#add_category_example thead").html() );
+            
         onAddDialog_AddInsertFieldClick();
     });
     $("#add_input_filed").click( onAddDialog_AddInsertFieldClick );
@@ -294,10 +300,14 @@ $(function() {
     function onDeleteDialog_CancelClick(){
         $(this).dialog('close');
     }
+    function onAddDialog_RemoveAll(){
+        $('#add_table thead tr').remove();
+        $('#add_table tbody tr').remove();
+    }
     function onAddDialog_AddComplete(){
         MessageBox('Success!!!');
         $('#dialog_add').dialog('close');
-        $('#add_table tbody tr').remove();
+        onAddDialog_RemoveAll();
         RefreshPage();
     }
     function onAddDialog_AddCallback(){
@@ -312,46 +322,75 @@ $(function() {
     function onAddDialog_AddClick(){
         $('#add_progressbar').css('display', 'block');
         var trs = $('#add_table tbody tr');
-        for( var i=0 ; i < trs.length ; i++ ){
-            var tr = trs.eq(i);
-            var cmd = '&item_price='      +tr.find('.add_price').val()+
-                      '&item_description='+tr.find('.add_description').val()+
-                      '&item_category_id='+tr.find('.add_category').attr('value')+
-                      '&item_date='       +tr.find('.add_time').val();
-            cmd = 'list_add?type=' + g_query_type + cmd;
-            $.get( cmd, onAddDialog_AddCallback );
+        if( IsBrowseTrade() )
+        {
+            for( var i=0 ; i < trs.length ; i++ ){
+                var tr = trs.eq(i);
+                var cmd = '&item_price='      +tr.find('.add_price').val()+
+                          '&item_description='+tr.find('.add_description').val()+
+                          '&item_category_id='+tr.find('.add_category').attr('value')+
+                          '&item_date='       +tr.find('.add_time').val();
+                cmd = 'list_add?type=' + g_query_type + cmd;
+                $.get( cmd, onAddDialog_AddCallback );
+            }
+        }
+        else//Category In/Out
+        {
+            for( var i=0 ; i < trs.length ; i++ ){
+                var tr = trs.eq(i);
+                var cmd = '&item_description='+tr.find('.add_description').val();
+                cmd = 'list_add?type=' + g_query_type + cmd;
+                $.get( cmd, onAddDialog_AddCallback );
+            }
         }
     }
     function onAddDialog_CancelClick(){
         $(this).dialog('close');
     }
     function onAddDialog_AddInsertFieldClick(){
-        if( g_category.length == 0 ){
-            MessageBox('尚未載入Category!');
-            return
+        if( IsBrowseTrade() )
+        {
+            if( g_category.length == 0 ){
+                MessageBox('尚未載入Category!');
+                return
+            }
+            
+            var add_tr_len = $('#add_table tbody tr').length;
+            if( add_tr_len >= MAX_ADD_NUM ){
+                MessageBox('數量已達上限! 等下一輪吧你!');
+                return;
+            }
+            
+            //$('#add_table').css('display','block');
+            $('#add_table tbody').append( $("#add_example tbody").html() );
+            var new_tr = $('#add_table tbody tr').eq(add_tr_len);
+            AssignCategory2Select( new_tr.find('.add_category') );
+            new_tr.find('.remove_add_filed').click( function(){
+                                             $(this).parent().parent().remove();//Remove this <tr>
+                                             });
+            var new_tr_date = '';
+            if( $('#add_table tbody tr').length > 1)
+                new_tr_date = $('#add_table tbody tr').eq(add_tr_len-1).find('.add_time').val();
+            else if( new_tr_date=='' ){
+                new_tr_date = Get_TodayStr();
+            }
+            new_tr.find('.add_time').datepicker({ dateFormat: 'yy-mm-dd' })
+                                    .val( new_tr_date );
         }
-        
-        var add_tr_len = $('#add_table tbody tr').length;
-        if( add_tr_len >= MAX_ADD_NUM ){
-            MessageBox('數量已達上限! 等下一輪吧你!');
-            return;
+        else // Category In/Out
+        {
+            var add_tr_len = $('#add_table tbody tr').length;
+            if( add_tr_len >= MAX_ADD_NUM ){
+                MessageBox('數量已達上限! 等下一輪吧你!');
+                return;
+            }
+            $('#add_table tbody').append( $("#add_category_example tbody").html() );
+            var new_tr = $('#add_table tbody tr').eq(add_tr_len);
+            new_tr.find('.remove_add_filed').click( function(){
+                                             $(this).parent().parent().remove();//Remove this <tr>
+                                             });
+            
         }
-        
-        //$('#add_table').css('display','block');
-        $('#add_table tbody').append( $("#add_example tbody").html() );
-        var new_tr = $('#add_table tbody tr').eq(add_tr_len);
-        AssignCategory2Select( new_tr.find('.add_category') );
-        new_tr.find('.remove_add_filed').click( function(){
-                                         $(this).parent().parent().remove();//Remove this <tr>
-                                         });
-        var new_tr_date = '';
-        if( $('#add_table tbody tr').length > 1)
-            new_tr_date = $('#add_table tbody tr').eq(add_tr_len-1).find('.add_time').val();
-        else if( new_tr_date=='' ){
-            new_tr_date = Get_TodayStr();
-        }
-        new_tr.find('.add_time').datepicker({ dateFormat: 'yy-mm-dd' })
-                                .val( new_tr_date );
     }
     
     function ShowLoader(){
@@ -493,16 +532,12 @@ $(function() {
 
     <!--Menu-->
     <div id="menu">
-        <a href="list?type=category_in">收入類別</a>
-        <a href="list?type=category_out">支出類別</a>
-        <a href="list?type=in">收入</a>
-        <a href="list?type=out">支出</a>
-        <div id='query_category_out' class='applyLinkCursor'>ajax支出類別</div>
-        <div id='query_category_in'  class='applyLinkCursor'>ajax收入類別</div>
-        <div id='query_out' class='applyLinkCursor'>ajax支出</div>
-        <div id='query_in'  class='applyLinkCursor'>ajax收入</div>
-        <div id='add_input_btn'> Add Input <img id='img_add' class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
+        <div id='query_category_out' class='MenuBrowseType applyLinkCursor'>支出類別</div>
+        <div id='query_category_in'  class='MenuBrowseType applyLinkCursor'>收入類別</div>
+        <div id='query_out' class='MenuBrowseType applyLinkCursor'>支出</div>
+        <div id='query_in'  class='MenuBrowseType applyLinkCursor'>收入</div>
     </div>
+    <div id='add_input_btn'> 新增資料 <img id='img_add' class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
     
     <!-- Trad List -->
     <div id="trade_list">
@@ -572,12 +607,30 @@ $(function() {
     <div id="dialog_add" title='Add' width='800' align='center'>
         <!-- Example -->
         <table id='add_example' style='display:none'>
+            <thead>
+                <tr>
+                    <th>類別</th><th>價格</th><th>說明</th><th>時間</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr id='add_example_tr'>
                     <td><select            class='add_category'></select></td>
                     <td><input type="text" class="add_price"         /></td>
                     <td><input type="text" class="add_description"   /></td>
                     <td><input type="text" class="add_time" size='10'/></td>
+                    <td><img class="remove_add_filed applyLinkCursor" alt='Remove This Filed' src='./img/delete.png'></td>
+                </tr>
+            </tbody>
+        </table>
+        <table id='add_category_example' style='display:none'>
+            <thead>
+                <tr>
+                    <th>說明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id='add_category_example_tr'>
+                    <td><input type="text" class="add_description" /></td>
                     <td><img class="remove_add_filed applyLinkCursor" alt='Remove This Filed' src='./img/delete.png'></td>
                 </tr>
             </tbody>
