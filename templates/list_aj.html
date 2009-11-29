@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-TW" lang="zh-TW">
 <head>
@@ -12,6 +12,7 @@
 <script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery-alternate.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/analytics.js"></script>
 <script type="text/javascript">
     $(function(){
         $('#item_date').datepicker({ dateFormat: 'yy-mm-dd' });
@@ -266,6 +267,7 @@ $(function() {
         }
         AssignCss_ListTableAllTrade();
         HideLoader();
+        RefreshAnalytics();
     }
     
     function CreateSelectDate(){
@@ -571,6 +573,19 @@ $(function() {
         </table>
     </div>
     
+    <!-- Analytics List -->
+    <div id="analytics_list">
+        <table id='analytics_table' border='0' align='center'>
+            <thead> 
+                <tr>
+                    <th>排名</th><th>類別</th><th>總計</th>
+                </tr>
+            </thead>
+            
+            <tbody></tbody>
+        </table>
+    </div>
+    
     <!--Loader-->
     <div id='imgLoader'>
         <img id='_imgLoader' src='./img/loader.gif'/>
@@ -650,7 +665,7 @@ $(function() {
                 </table>
         </form>
         <div id="add_progressbar"></div>
-    </div>    
+    </div>
     
 </body>
 </html>
