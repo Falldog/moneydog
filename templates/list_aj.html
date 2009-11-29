@@ -285,10 +285,12 @@ $(function() {
         AssignSelectDate(curY, curM);
         
         $("#select_year").bind('change', function(e){
-            alert("change:" + $("#select_year").val() );
+            //alert("change:" + $("#select_year").val() );
+            QueryData_Trade();
         })
         $("#select_month").bind('change', function(e){
-            alert("change:" + $("#select_month").val() );
+            //alert("change:" + $("#select_month").val() );
+            QueryData_Trade();
         })
     }
     
