@@ -50,6 +50,9 @@ $(function() {
     QueryData_Category();
     
     
+    // Component initial ...
+    var m_analytics = new CAnalytics();
+    
     $("#query_out").click( function(){
         $('#trade_list').show();
         $('#category_table').hide();
@@ -267,7 +270,7 @@ $(function() {
         }
         AssignCss_ListTableAllTrade();
         HideLoader();
-        RefreshAnalytics();
+        m_analytics.Refresh();
     }
     
     function CreateSelectDate(){
@@ -475,7 +478,7 @@ $(function() {
         var desc  = data[3];
         var key   = data[4];
         new_html = '<tr time="'+time+'" price="'+price+'" category="'+cate+'" description="'+desc+'" key="'+key+'" >'
-                     +'<td></td> <td>'+data[0]+'</td> <td>'+data[1]+'</td> <td>'+data[2]+'</td> <td>'+data[3]+'</td>'
+                     +'<td></td> <td>'+time+'</td> <td>'+IntAddComma(price)+'</td> <td>'+cate+'</td> <td>'+desc+'</td>'
                      +'</tr>'
         $("#list_table tbody").append(new_html);
         
@@ -575,6 +578,16 @@ $(function() {
     
     <!-- Analytics List -->
     <div id="analytics_list">
+        <table id='analytics_sum_table' border='0' align='center'>
+            <thead> 
+                <tr>
+                    <th>統計</th><th>數值</th>
+                </tr>
+            </thead>
+            
+            <tbody></tbody>
+        </table>
+
         <table id='analytics_table' border='0' align='center'>
             <thead> 
                 <tr>

@@ -36,4 +36,23 @@
         str +=  '-' + ((d < 10)? '0'+d : d);
         return str;
     }
+    
+    
+    function IntAddComma(num)
+    {
+        if( num < 1000 ) 
+            return String(num);
+        else{
+            //calculate the number under 1000, plus the '0'
+            n = num % 1000;//current num
+            d = 100; //digital
+            s = '';
+            for( var i=0; i<3 ; i++){
+                s += String(parseInt(n/d));
+                n %= d;
+                d /= 10;
+            }
+            return IntAddComma( parseInt(num/1000) ) + "," + s;
+        }
+    }
 //})

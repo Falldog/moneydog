@@ -49,61 +49,6 @@ a:hover {text-decoration: underline; color: blue;}
 
 
 
-/********************  <Analytics List>  *********************/
-#analytics
-{
-    padding-top: 20px;
-}
-
-td.analytics_type
-{
-    width:80px;
-    margin-top:10px;
-    margin-bottom:0px;
-}
-
-td.analytics_value
-{
-    width:70px;
-	text-align: right;
-	padding-right: 10px;
-    
-    font-family: times new roman;
-    font-weight: bold;
-}
-/********************  </Analytics List>  *********************/
-
-td.stat_index
-{
-    width:40px;
-    text-align: center;
-    font-weight: bold;
-}
-
-td.stat_category
-{
-    width:120px;
-    margin-top:10px;
-    margin-bottom:0px;
-    text-align: left;
-    padding-left: 15px;
-}
-
-td.stat_price
-{
-    width:70px;
-	text-align: right;
-	padding-right: 10px;
-    
-    font-family: times new roman;
-    font-weight: bold;
-}
-
-
-
-
-
-
 #menu
 {
     width: 300px;
@@ -211,4 +156,51 @@ td.stat_price
     width:350px;
 	text-align: left;
 	padding-left: 10px;
+}
+
+
+
+/********************  <Analytics List>  *********************/
+.AnalyticsTable_type
+{
+    width:80px;
+    text-align: center;
+    margin-top:10px;
+    margin-bottom:0px;
+}
+
+.AnalyticsTable_value
+{
+    width:70px;
+	text-align: right;
+	padding-right: 10px;
+    
+    font-family: times new roman;
+    font-weight: bold;
+}
+
+.AnalyticsTable_index
+{
+    width:40px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.AnalyticsTable_category
+{
+    width:120px;
+    margin-top:10px;
+    margin-bottom:0px;
+    text-align: left;
+    padding-left: 15px;
+}
+
+.AnalyticsTable_price
+{
+    width:70px;
+	text-align: right;
+	padding-right: 10px;
+    
+    font-family: times new roman;
+    font-weight: bold;
 }
