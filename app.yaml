@@ -20,8 +20,5 @@ handlers:
 - url: /test
   script: test.py  
   
-- url: /add
-  script: add.py  
-  
 - url: .*
   script: index.py
