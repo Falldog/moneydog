@@ -48,7 +48,7 @@ $(function() {
     $('.applyLinkCursor').css('cursor', 'pointer');
     $('#category_table').hide();
     QueryData_Category();
-    
+    QueryUserName();
     
     // Component initial ...
     var m_analytics = new CAnalytics();
@@ -216,6 +216,13 @@ $(function() {
             }
         });
         
+    }
+    
+    function QueryUserName(){
+        cmd = "query?type=user_name";
+        $.get( cmd, function callback(html){
+                $('#user_name').text(html)
+                    });    
     }
     
     function Get_CategoryKey(desc){
@@ -521,8 +528,10 @@ $(function() {
 
 </head>
 <body>
-    
-    <div id="top_bar">{{user}}<a href="logout">登出</a></div>
+    <div id="top_bar">
+        <a href='https://appengine.google.com/deployment?app_id=moneydog-tw'>MoneyDog project page</a> | 
+        <div id='user_name'></div> <a href="logout">登出</a> |
+    </div>
     
     
     <div id="money_dog_header">Money Dog</div>

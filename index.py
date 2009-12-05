@@ -632,7 +632,9 @@ class Query( webapp.RequestHandler ):
         self.do_query_category_out()
     elif( type=='search_category' ):
         self.do_search_category()
-  
+    elif( type=='user_name' ):
+        self.do_query_user_name()
+        
   def do_query_in(self):
     try:
         year =  int( self.request.get('year') )
@@ -744,6 +746,9 @@ class Query( webapp.RequestHandler ):
     for i in items:
         html = '%s%s%s%s' % ( i['key'], sep, i['description'], line_sep )
         self.response.out.write( html )
+  
+  def do_query_user_name(self):
+    self.response.out.write( users.get_current_user().nickname() )
     
 application = webapp.WSGIApplication([
   ('/',      MainPage),
