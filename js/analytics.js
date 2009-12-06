@@ -1,10 +1,21 @@
 function CAnalytics()
 {
     this.Refresh = Refresh;
+    this.Show    = Show;
+    this.Hide    = Hide;
     
     //********************************************************
     // Function declear
     //********************************************************
+    function Show()
+    {
+        $('#analytics_list').show();
+    }
+    function Hide()
+    {
+        $('#analytics_list').hide();
+    }
+    
     function __CCateSum(despt, sum)
     {
         this.description = despt;

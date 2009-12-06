@@ -56,24 +56,28 @@ $(function() {
     $("#query_out").click( function(){
         $('#trade_list').show();
         $('#category_table').hide();
+        m_analytics.Show();
         g_query_type = QUERY_TYPE_OUT;
         QueryData_Trade();
     });
     $("#query_in").click(function() {
         $('#trade_list').show();
         $('#category_table').hide();
+        m_analytics.Show();
         g_query_type = QUERY_TYPE_IN;
         QueryData_Trade();
     });
     $("#query_category_out").click( function(){
         $('#trade_list').hide();
         $('#category_table').show();
+        m_analytics.Hide();
         g_query_type = QUERY_TYPE_CATEGORY_OUT;
         QueryData_Category();
     });
     $("#query_category_in").click(function() {
         $('#trade_list').hide();
         $('#category_table').show();
+        m_analytics.Hide();
         g_query_type = QUERY_TYPE_CATEGORY_IN;
         QueryData_Category();
     });
