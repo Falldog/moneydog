@@ -92,6 +92,7 @@ $(function() {
         m_analytics.Show();
         g_query_type = QUERY_TYPE_OUT;
         QueryData_Trade();
+        QueryData_Category();
     });
     $("#query_in").click(function() {
         $('#trade_list').show();
@@ -99,6 +100,7 @@ $(function() {
         m_analytics.Show();
         g_query_type = QUERY_TYPE_IN;
         QueryData_Trade();
+        QueryData_Category();
     });
     $("#query_category_out").click( function(){
         $('#trade_list').hide();

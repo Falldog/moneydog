@@ -1,4 +1,4 @@
-function CAddDialog()
+ï»¿function CAddDialog()
 {
     
     this.Initial               = Initial;
@@ -55,7 +55,10 @@ function CAddDialog()
             onAddComplete();
     }
     function onAddClick(){
+        //re-initial progressbar
+        $('#add_progressbar').progressbar('option', 'value', 0);
         $('#add_progressbar').css('display', 'block');
+        
         var trs = $('#add_table tbody tr');
         if( IsBrowseTrade() )
         {
@@ -86,13 +89,13 @@ function CAddDialog()
         if( IsBrowseTrade() )
         {
             if( g_category.length == 0 ){
-                MessageBox('©|¥¼¸ü¤JCategory!');
+                MessageBox('å°šæœªè¼‰å…¥Category!');
                 return
             }
             
             var add_tr_len = $('#add_table tbody tr').length;
             if( add_tr_len >= MAX_ADD_NUM ){
-                MessageBox('¼Æ¶q¤w¹F¤W­­! µ¥¤U¤@½ü§a§A!');
+                MessageBox('æ•¸é‡å·²é”ä¸Šé™! ç­‰ä¸‹ä¸€è¼ªå§ä½ !');
                 return;
             }
             
@@ -116,7 +119,7 @@ function CAddDialog()
         {
             var add_tr_len = $('#add_table tbody tr').length;
             if( add_tr_len >= MAX_ADD_NUM ){
-                MessageBox('¼Æ¶q¤w¹F¤W­­! µ¥¤U¤@½ü§a§A!');
+                MessageBox('æ•¸é‡å·²é”ä¸Šé™! ç­‰ä¸‹ä¸€è¼ªå§ä½ !');
                 return;
             }
             $('#add_table tbody').append( $("#add_category_example tbody").html() );

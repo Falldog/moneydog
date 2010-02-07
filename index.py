@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding=utf-8
 
 import cgi
@@ -53,7 +53,7 @@ def GetCategory():
         item['key'] = i.key()
         item['description'] = i.description
         in_items.append( item )
-        
+    
     result = TradeCategory.gql( "Where user=:1 AND type=:2 ORDER BY description", users.get_current_user(), 'out' )
     out_items = []
     for i in result :
@@ -707,7 +707,8 @@ class Query( webapp.RequestHandler ):
         item['user'] = i.user.nickname()
         item['description'] = i.description
         items.append( item )
-
+    items.sort(key=lambda x:x['description'])
+    
     template_values = {
       'type': 'category_in',
       'show_type': 'category',
@@ -732,7 +733,8 @@ class Query( webapp.RequestHandler ):
         item['user'] = i.user.nickname()
         item['description'] = i.description
         items.append( item )
-
+    items.sort(key=lambda x:x['description'])
+    
     template_values = {
       'type': 'category_out',
       'show_type': 'category',
