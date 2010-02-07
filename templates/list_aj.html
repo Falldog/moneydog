@@ -11,7 +11,9 @@
 <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery-alternate.js"></script>
+<script type="text/javascript" src="js/event.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/addDialog.js"></script>
 <script type="text/javascript" src="js/analytics.js"></script>
 <script type="text/javascript">
     $(function(){
@@ -21,28 +23,55 @@
 <script type="text/javascript" language="javascript">
     var type='{{type}}';
 
-$(function() {
-    //Const
-    var QUERY_SEP      = '$#';
-    var QUERY_SEP_LINE = '$\n';
-    
-    var QUERY_TYPE_OUT = 'out';
-    var QUERY_TYPE_IN  = 'in';
-    var QUERY_TYPE_CATEGORY_OUT = 'category_out';
-    var QUERY_TYPE_CATEGORY_IN  = 'category_in';
-    
-    var MAX_ADD_NUM = 10;
-    
-    //Class
-    function CCategory(key, description){
-        this.key = key;
-        this.description = description;
+//Const
+var QUERY_SEP      = '$#';
+var QUERY_SEP_LINE = '$\n';
+
+var QUERY_TYPE_OUT = 'out';
+var QUERY_TYPE_IN  = 'in';
+var QUERY_TYPE_CATEGORY_OUT = 'category_out';
+var QUERY_TYPE_CATEGORY_IN  = 'category_in';
+
+var MAX_ADD_NUM = 10;
+var g_query_type = QUERY_TYPE_OUT;
+var g_category = new Array();
+var g_eventMgr = new CEventMgr();
+
+//Class
+function CCategory(key, description)
+{
+    this.key = key;
+    this.description = description;
+}
+
+//Global function
+function IsBrowseTrade()
+{
+    if(g_query_type==QUERY_TYPE_OUT || g_query_type==QUERY_TYPE_IN)
+        return true;
+    return false;
+}
+function IsBrowseCategory()
+{
+    if(g_query_type==QUERY_TYPE_CATEGORY_OUT || g_query_type==QUERY_TYPE_CATEGORY_IN)
+        return true;
+    return false;
+}
+
+function AssignCategory2Select( select )
+{
+    select.children().remove();
+    for(var i =0 ; i < g_category.length ; i++ ){
+        var s = '<option value="'+g_category[i].key+'">'+g_category[i].description+'</option>';
+        select.append(s);
     }
+}
+
+$(function() {
+    
     
     
     // Parameter initial...
-    var g_query_type = QUERY_TYPE_OUT;
-    var g_category = new Array();
     $('img').css('border-width', 0);
     $('#ui-datepicker-div').css('z-index', 2000);
     $('.applyLinkCursor').css('cursor', 'pointer');
@@ -52,6 +81,10 @@ $(function() {
     
     // Component initial ...
     var m_analytics = new CAnalytics();
+    var m_addDialog = new CAddDialog();
+    
+    // Bind event ...
+    g_eventMgr.bind('Refresh Page', RefreshPage);
     
     $("#query_out").click( function(){
         $('#trade_list').show();
@@ -86,15 +119,14 @@ $(function() {
         $("#dialog_add").dialog('open');
         $('#add_progressbar').progressbar({value: 0});
         $('#add_progressbar').css('display', 'none');
-        onAddDialog_RemoveAll();
+        m_addDialog.RemoveAll();
         if( IsBrowseTrade() )
             $('#add_table thead').append( $("#add_example thead").html() );
         else
             $('#add_table thead').append( $("#add_category_example thead").html() );
             
-        onAddDialog_AddInsertFieldClick();
+        m_addDialog.onAddInsertFieldClick();
     });
-    $("#add_input_filed").click( onAddDialog_AddInsertFieldClick );
     
     Init_Dialog();
     Init_MessageBox();
@@ -120,38 +152,7 @@ $(function() {
     QueryData_Trade();
     
     
-    function IsBrowseTrade(){
-        if(g_query_type==QUERY_TYPE_OUT || g_query_type==QUERY_TYPE_IN)
-            return true;
-        return false;
-    }
-    function IsBrowseCategory(){
-        if(g_query_type==QUERY_TYPE_CATEGORY_OUT || g_query_type==QUERY_TYPE_CATEGORY_IN)
-            return true;
-        return false;
-    }
-    
     function Init_Dialog(){
-        $('#dialog_add').dialog({
-            autoOpen: false,
-            bgiframe: true,
-            resizable: false,
-            height:600,
-            width:800,
-            modal: true,
-            resizable: true,
-            overlay: {
-                backgroundColor: '#000',
-                opacity: 0.5
-            },
-            buttons: {
-                'Add': onAddDialog_AddClick,
-                Cancel: onAddDialog_CancelClick
-            },
-            close: function(event, ui) {
-                $('#ui-datepicker-div').hide()
-            }
-        });
         
         $('#dialog_delete').dialog({
             autoOpen: false,
@@ -318,99 +319,7 @@ $(function() {
     function onDeleteDialog_CancelClick(){
         $(this).dialog('close');
     }
-    function onAddDialog_RemoveAll(){
-        $('#add_table thead tr').remove();
-        $('#add_table tbody tr').remove();
-    }
-    function onAddDialog_AddComplete(){
-        MessageBox('Success!!!');
-        $('#dialog_add').dialog('close');
-        onAddDialog_RemoveAll();
-        RefreshPage();
-    }
-    function onAddDialog_AddCallback(){
-        var perc = 100.0 / $('#add_table tbody tr').length;
-        var bar = $('#add_progressbar');
-        var v = bar.progressbar('option', 'value');
-        bar.progressbar('option', 'value', v+perc);
-        
-        if( bar.progressbar('option', 'value') > 99 )
-            onAddDialog_AddComplete();
-    }
-    function onAddDialog_AddClick(){
-        $('#add_progressbar').css('display', 'block');
-        var trs = $('#add_table tbody tr');
-        if( IsBrowseTrade() )
-        {
-            for( var i=0 ; i < trs.length ; i++ ){
-                var tr = trs.eq(i);
-                var cmd = '&item_price='      +tr.find('.add_price').val()+
-                          '&item_description='+tr.find('.add_description').val()+
-                          '&item_category_id='+tr.find('.add_category').attr('value')+
-                          '&item_date='       +tr.find('.add_time').val();
-                cmd = 'list_add?type=' + g_query_type + cmd;
-                $.get( cmd, onAddDialog_AddCallback );
-            }
-        }
-        else//Category In/Out
-        {
-            for( var i=0 ; i < trs.length ; i++ ){
-                var tr = trs.eq(i);
-                var cmd = '&item_description='+tr.find('.add_description').val();
-                cmd = 'list_add?type=' + g_query_type + cmd;
-                $.get( cmd, onAddDialog_AddCallback );
-            }
-        }
-    }
-    function onAddDialog_CancelClick(){
-        $(this).dialog('close');
-    }
-    function onAddDialog_AddInsertFieldClick(){
-        if( IsBrowseTrade() )
-        {
-            if( g_category.length == 0 ){
-                MessageBox('尚未載入Category!');
-                return
-            }
-            
-            var add_tr_len = $('#add_table tbody tr').length;
-            if( add_tr_len >= MAX_ADD_NUM ){
-                MessageBox('數量已達上限! 等下一輪吧你!');
-                return;
-            }
-            
-            //$('#add_table').css('display','block');
-            $('#add_table tbody').append( $("#add_example tbody").html() );
-            var new_tr = $('#add_table tbody tr').eq(add_tr_len);
-            AssignCategory2Select( new_tr.find('.add_category') );
-            new_tr.find('.remove_add_filed').click( function(){
-                                             $(this).parent().parent().remove();//Remove this <tr>
-                                             });
-            var new_tr_date = '';
-            if( $('#add_table tbody tr').length > 1)
-                new_tr_date = $('#add_table tbody tr').eq(add_tr_len-1).find('.add_time').val();
-            else if( new_tr_date=='' ){
-                new_tr_date = Get_TodayStr();
-            }
-            new_tr.find('.add_time').datepicker({ dateFormat: 'yy-mm-dd' })
-                                    .val( new_tr_date );
-        }
-        else // Category In/Out
-        {
-            var add_tr_len = $('#add_table tbody tr').length;
-            if( add_tr_len >= MAX_ADD_NUM ){
-                MessageBox('數量已達上限! 等下一輪吧你!');
-                return;
-            }
-            $('#add_table tbody').append( $("#add_category_example tbody").html() );
-            var new_tr = $('#add_table tbody tr').eq(add_tr_len);
-            new_tr.find('.remove_add_filed').click( function(){
-                                             $(this).parent().parent().remove();//Remove this <tr>
-                                             });
-            
-        }
-    }
-    
+
     function ShowLoader(){
         $('#imgLoader').show();
     }
@@ -439,13 +348,6 @@ $(function() {
             $("#category_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_delete' key='"+key+"' alt='刪除' src='./img/delete.png'/>");
         }
         AssignCss_CategoryTable();
-    }
-    function AssignCategory2Select( select ){
-        select.children().remove();
-        for(var i =0 ; i < g_category.length ; i++ ){
-            var s = '<option value="'+g_category[i].key+'">'+g_category[i].description+'</option>';
-            select.append(s);
-        }
     }
     function AssignSelectDate(y,m){
         $("#select_year  option[value="+y+"]").attr('selected', true);
@@ -527,6 +429,7 @@ $(function() {
         AssignDeleteForm();
         AssignEditCategoryForm();
     }
+    
 });
 </script>
 
@@ -679,7 +582,7 @@ $(function() {
             </tbody>
         </table>
         
-        <div id='add_input_filed'> Add Input <img class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
+        <div id='add_input_field'> Add Input <img class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
         <form id="form_add">
                 <table id='add_table'>
                     <thead>
