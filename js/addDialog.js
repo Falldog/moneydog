@@ -114,6 +114,8 @@
             }
             new_tr.find('.add_time').datepicker({ dateFormat: 'yy-mm-dd' })
                                     .val( new_tr_date );
+            
+            new_tr.find('.add_price').keyup( __CheckPrice );
         }
         else // Category In/Out
         {
@@ -129,6 +131,22 @@
                                              });
             
         }
+    }
+    
+    function __CheckPrice(event)
+    {
+        var warning = $(this).parent().parent().find('.add_warning');
+        if(this.value==''){
+            warning.hide();
+            return;
+        }
+        
+        var numericExpression = /^\d+$/;
+        if( this.value.match(numericExpression)==null )
+            warning.text('Please input the correct number!')
+                   .show();
+        else
+            warning.hide();
     }
         
 }

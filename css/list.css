@@ -204,3 +204,28 @@ a:hover {text-decoration: underline; color: blue;}
     font-family: times new roman;
     font-weight: bold;
 }
+
+/********************  <Add>  *********************/
+.add_category
+{
+}
+
+.add_price
+{
+    width: 70px;
+}
+
+.add_description
+{
+    width: 275px;
+}
+
+.add_time
+{
+}
+
+.add_warning
+{
+    font-size: 10px;
+    color: red;
+}
