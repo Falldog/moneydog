@@ -117,7 +117,7 @@ $(function() {
         QueryData_Category();
     });
     
-    $("#add_input_btn").click( function(){
+    $("#img_add").click( function(){
         $("#dialog_add").dialog('open');
         $('#add_progressbar').progressbar({value: 0});
         $('#add_progressbar').css('display', 'none');
@@ -313,10 +313,11 @@ $(function() {
         var key = $('#delete_key').val();
         cmd = "list_delete?type="+g_query_type+"&item_key="+key;
         $.get( cmd, function callback(html){
-                        //alert('Success!');
+                        
                     });
         $('#list_table tr[key='+ key +']').remove();
         $('#category_table tr[key='+ key +']').remove();
+        m_analytics.Refresh();
     }
     function onDeleteDialog_CancelClick(){
         $(this).dialog('close');

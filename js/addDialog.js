@@ -17,8 +17,9 @@
             autoOpen: false,
             bgiframe: true,
             resizable: false,
-            height:600,
-            width:800,
+            height: 600,
+            width:  800,
+            zIndex: 1000,
             modal: true,
             resizable: true,
             overlay: {
