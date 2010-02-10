@@ -72,51 +72,6 @@ def GetCategory():
     # }
     return ( in_items, out_items )
 
-def GetOtherPorperty( template_values, year, month ):
-    #Add Time : Year & Month
-    template_values['year']  = year
-    template_values['month'] = month
-    template_values['list_year'] = range( year-4, year+5 )
-    template_values['list_month'] = range( 1, 13 )
-    if month==12 :
-        template_values['year_n'] = year+1
-        template_values['year_p'] = year
-        template_values['month_n'] = 1
-        template_values['month_p'] = month-1
-    elif month==1 :
-        template_values['year_n'] = year
-        template_values['year_p'] = year-1
-        template_values['month_n'] = month+1
-        template_values['month_p'] = 12
-    else:
-        template_values['year_n'] = year
-        template_values['year_p'] = year
-        template_values['month_n'] = month+1
-        template_values['month_p'] = month-1
-
-def _cmp_func(x,y):
-    return cmp(x[1],y[1])
-    
-def DoStatistics( values ):
-    if values['items'] is None:
-        values['stat'] = []
-        return
-        
-    result = {}
-    for i in values['items']:
-        if result.get( i['category'] ) is None :
-            result[ i['category'] ] = 0
-        result[ i['category'] ] += i['_price']
-    result = result.items()
-    result.sort( cmp=_cmp_func )
-    values['stat'] = [ {'category':k[0], 'price':IntAddComma(k[1])} for k in result ]
-    values['stat'].reverse()
-    idx = 1
-    for i in values['stat']:
-        i['index'] = idx
-        idx += 1
-
-    
 #-------------------------------------------------------------------------------------------------------------------------------------------
 class MainPage( webapp.RequestHandler ):
   def get(self):
@@ -146,212 +101,6 @@ class Logout( webapp.RequestHandler ):
     self.redirect( users.create_logout_url(self.request.uri) )
   
   
-  
-class List( webapp.RequestHandler ):
-  def post(self):
-    get()
-    
-  def get(self):
-    #self.response.headers['Content-Type'] = 'text/plain'
-    #self.response.out.write('List!')
-    type = self.request.get('type')
-    
-    if( type==None or type=="" ):
-        type = 'out'
-        self.do_list_out()
-    elif( type=='in' ):
-        self.do_list_in()
-    elif( type=='out' ):
-        self.do_list_out()
-    elif( type=='category_in' ):
-        self.do_list_category_in();
-    elif( type=='category_out' ):
-        self.do_list_category_out()
-    elif( type=='search_category' ):
-        self.do_search_category()
-    
-  def do_list_in(self):
-  
-    #result = TradeItem.gql( "Where user=:1", users.get_current_user() )
-    try:
-        year =  int( self.request.get('year') )
-        month = int( self.request.get('month') )
-    except ValueError:
-        year  = 0
-        month = 0
-    if year==None or year==0:     year = datetime.datetime.now().year
-    if month==None or month==0:   month = datetime.datetime.now().month
-    dt = datetime.datetime(year,month,1)
-    
-    #query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ", users.get_current_user(), CATEGORY_IN, datetime.datetime(year,month,1), datetime.datetime(year,month,31) )
-    query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ORDER BY date", users.get_current_user(), CATEGORY_IN, datetime.datetime(year,month,1), datetime.datetime(year,month,LastDayOfMonth(dt)) )
-    items = []
-    msg = {}
-    msg['price_max'] = 0
-    msg['price_total'] = 0
-    for i in query :
-        item = {}
-        item['key'] = i.key()
-        item['price'] = IntAddComma(i.price)
-        item['category'] = i.category.description
-        item['description'] = i.description
-        item['date'] = i.date
-        items.append( item )
-        
-        msg['price_max'] = max( msg['price_max'], i.price )
-        msg['price_total'] += i.price
-        
-        
-    (category_in,category_out) = GetCategory()
-    template_values = {
-      'type': 'in',
-      'show_type': 'trade',
-      'category_in' : category_in,
-      'category_out': category_out,
-      'items': items,
-      'user': users.get_current_user(),
-      'msg' : msg,
-    }
-    GetOtherPorperty( template_values, year, month )    
-    
-    path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
-    self.response.out.write( template.render( path, template_values ))
-
-  def do_list_out(self):
-
-    try:
-        year =  int( self.request.get('year') )
-        month = int( self.request.get('month') )
-    except ValueError:
-        year  = 0
-        month = 0
-    if year==None or year==0:     year = datetime.datetime.now().year
-    if month==None or month==0:   month = datetime.datetime.now().month
-    dt = datetime.datetime(year,month,1)
-
-    query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ORDER BY date", users.get_current_user(), CATEGORY_OUT, datetime.datetime(year,month,1), datetime.datetime(year,month,LastDayOfMonth(dt)) )
-    items = []
-    pre_item = {}
-    msg = {}
-    msg['price_max'] = 0
-    msg['price_total'] = 0
-    for i in query :
-        item = {}
-        item['key'] = i.key()
-        item['price'] = IntAddComma(i.price)
-        item['_price'] = i.price
-        item['_category'] = i.category
-        item['category'] = i.category.description
-        item['description'] = i.description
-        item['date'] = i.date
-        
-        #日期不一樣 則插入一空白行 support by New Version...
-        #if pre_item!={}  and  pre_item['date']!=item['date']: items.append({});
-        #pre_item = item
-        
-        items.append( item )
-        
-        msg['price_max'] = max( msg['price_max'], i.price )
-        msg['price_total'] += i.price
-        
-        
-
-    (category_in,category_out) = GetCategory()
-    template_values = {
-      'type': 'out',
-      'show_type': 'trade',
-      'category_in' : category_in,
-      'category_out': category_out,
-      'items':        items,
-      'user': users.get_current_user(),
-      'msg' : msg,
-    }
-    GetOtherPorperty( template_values, year, month )
-    DoStatistics( template_values )
-    
-    path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
-    self.response.out.write( template.render( path, template_values ))
-    
-    
-  def do_list_category_in(self):
-    result = TradeCategory.gql( "Where user=:1 AND type=:2", users.get_current_user(), db.Category('in') )
-    items = []
-    for i in result :
-        item = {}
-        item['key'] = i.key()
-        item['user'] = i.user.nickname()
-        item['description'] = i.description
-        items.append( item )
-
-    template_values = {
-      'type': 'category_in',
-      'show_type': 'category',
-      'items': items,
-      'user': users.get_current_user()
-    }
-    path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
-    self.response.out.write( template.render( path, template_values ))
-    
-  def do_list_category_out(self):
-    result = TradeCategory.gql( "Where user=:1 AND type=:2", users.get_current_user(), 'out' )
-    items = []
-    for i in result :
-        item = {}
-        item['key'] = i.key()
-        item['user'] = i.user.nickname()
-        item['description'] = i.description
-        items.append( item )
-
-    template_values = {
-      'type': 'category_out',
-      'show_type': 'category',
-      'items': items,
-      'user': users.get_current_user()
-    }
-    path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
-    self.response.out.write( template.render( path, template_values ))
-    
-  def do_search_category(self):
-    cate = db.get( db.Key( self.request.get('category_key') ) )
-    query = TradeItem.gql( "Where user=:1 AND category=:2", users.get_current_user(), cate )
-    items = []
-    msg = {}
-    msg['price_max'] = 0
-    msg['price_total'] = 0
-    for i in query :
-        item = {}
-        item['key'] = i.key()
-        item['price'] = IntAddComma(i.price)
-        item['category'] = i.category.description
-        item['description'] = i.description
-        item['date'] = i.date
-        if i.type == CATEGORY_IN :
-            item['type'] = 'in'
-            item['in_or_out'] = '收入'
-        else :
-            item['type'] = 'out'
-            item['in_or_out'] = '支出'
-        items.append( item )
-        
-        msg['price_max'] = max( msg['price_max'], i.price )
-        msg['price_total'] += i.price
-
-    (category_in,category_out) = GetCategory()
-    template_values = {
-      'type': 'search_category',
-      'show_type': 'search_result',
-      'category_in' : category_in,
-      'category_out': category_out,
-      'items':        items,
-      'user':         users.get_current_user(),
-      'msg':  msg,
-    }
-    
-    path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
-    self.response.out.write( template.render( path, template_values ))
-    
-    
-    
 class ListAdd( webapp.RequestHandler ):
   def get(self):
     type = self.request.get('type')
@@ -381,7 +130,7 @@ class ListAdd( webapp.RequestHandler ):
     trade.put()
     trade.save()
     
-    self.redirect('/list?type=in')
+    #self.redirect('/list?type=in')
     
     
   def add_list_out(self):
@@ -398,7 +147,7 @@ class ListAdd( webapp.RequestHandler ):
     trade.put()
     trade.save()
     
-    self.redirect('/list?type=out')
+    #self.redirect('/list?type=out')
     
     
   def add_list_category_in(self):
@@ -415,7 +164,7 @@ class ListAdd( webapp.RequestHandler ):
     #self.response.headers['Content-Type'] = 'text/plain'
     #self.response.out.write( 'add_list_category_in '  )
     #self.response.out.write( category.description )
-    self.redirect('/list?type=category_in')
+    #self.redirect('/list?type=category_in')
     
   def add_list_category_out(self):
     template_values = {
@@ -427,43 +176,13 @@ class ListAdd( webapp.RequestHandler ):
     category.description = self.request.get('item_description')
     category.put()
 
-    self.redirect('/list?type=category_out')
+    #self.redirect('/list?type=category_out')
     
 class ListEdit( webapp.RequestHandler ):
   def get(self):
     type = self.request.get('type')
     do   = self.request.get('do')
-    if( do=='edit' ):
-        item = db.get( db.Key( self.request.get('item_key') ) )
-        if item:
-            (category_in,category_out) = GetCategory()
-            template_values = {
-              'type': type,
-              'category_in' : category_in,
-              'category_out': category_out,
-              'item': item
-            }
-            path = os.path.join(os.path.dirname(__file__), 'templates/list_edit.html')
-            self.response.out.write( template.render( path, template_values ))
-            
-    elif do=='result':
-        if( type=='in' or type=='out' ):
-            item = db.get( db.Key( self.request.get('item_key') ) )
-            item.category    = db.get( self.request.get('item_category_id') )
-            item.price       = int( self.request.get('item_price') )
-            item.description = self.request.get('item_description')    
-            add_date         = datetime.datetime.strptime( self.request.get('item_date'), "%Y-%m-%d" )
-            item.date        = datetime.date( add_date.year, add_date.month, add_date.day )
-            item.put()
-            item.save()
-            
-        elif( type=='category_in' or type=='category_out' ):
-            item = db.get( db.Key( self.request.get('item_key') ) )
-            item.description = self.request.get('item_description')
-            item.put()
-        self.redirect('/list?type='+type)
-        
-    elif do=='aj':
+    if do=='aj':
         if( type=='in' or type=='out' ):
             item = db.get( db.Key( self.request.get('edit_key') ) )
             item.category    = db.get( self.request.get('edit_category') )
@@ -478,7 +197,7 @@ class ListEdit( webapp.RequestHandler ):
             item = db.get( db.Key( self.request.get('edit_key') ) )
             item.description = self.request.get('edit_description')
             item.put()
-        self.redirect('/list?type='+type)
+        #self.redirect('/list?type='+type)
 
 class ListDelete( webapp.RequestHandler ):
   def get(self):
@@ -496,7 +215,7 @@ class ListDelete( webapp.RequestHandler ):
                 item.delete()
         else:
             item.delete()
-    self.redirect('/list?type='+type)
+    #self.redirect('/list?type='+type)
 
 class Search( webapp.RequestHandler ):
   def get(self):
@@ -741,7 +460,6 @@ application = webapp.WSGIApplication([
   ('/index', MainPage),
   ('/login', Login),
   ('/logout',Logout),  
-  ('/list',  List),
   ('/list_add',  ListAdd),
   ('/list_edit', ListEdit),
   ('/list_delete', ListDelete),
