@@ -31,6 +31,7 @@ var QUERY_TYPE_OUT = 'out';
 var QUERY_TYPE_IN  = 'in';
 var QUERY_TYPE_CATEGORY_OUT = 'category_out';
 var QUERY_TYPE_CATEGORY_IN  = 'category_in';
+var QUERY_TYPE_SEARCH       = 'search';
 
 var MAX_ADD_NUM = 10;
 var g_query_type = QUERY_TYPE_OUT;
@@ -128,6 +129,13 @@ $(function() {
             $('#add_table thead').append( $("#add_category_example thead").html() );
             
         m_addDialog.onAddInsertFieldClick();
+    });
+    
+    //Search
+    $('#search_btn').click( Search );
+    $('#search_key_words').keyup( function(event){
+        if( event.keyCode=='13' ) //Enter
+            Search();
     });
     
     Init_Dialog();
@@ -281,6 +289,25 @@ $(function() {
         {
             item = data[i].split( QUERY_SEP );
             AppendTradeData(item);
+        }
+        AssignCss_ListTableAllTrade();
+        HideLoader();
+        m_analytics.Refresh();
+    }
+    
+    function Search(){
+        var key_words = $('#search_key_words').val();
+        $.get("search?key_words="+key_words, Search_Result);
+        ShowLoader();
+    }
+    function Search_Result(html){
+        $("#list_table tbody tr").remove();
+        
+        data = html.split( QUERY_SEP_LINE );
+        for( var i=0 ; i < data.length ; i++ )
+        {
+            item = data[i].split( QUERY_SEP );
+            AppendTradeData(item.slice(1));//remove first element 'type'
         }
         AssignCss_ListTableAllTrade();
         HideLoader();
@@ -447,14 +474,11 @@ $(function() {
     <div id="money_dog_header">Money Dog</div>
     
     <!-- Search -->
-    <form name="searchForm" method="get" action="search">
-        <input type="hidden" name="type" value="{{type}}"/>
-        
+    <div name="searchForm">
         <div id="search"  align="center">
-            <input name="key_words" type="text" size="50"/><input type="submit" value="搜尋"/>
+            <input id="search_key_words" type="text" size="50"/><input id='search_btn' type="button" value="搜尋"/>
         </div>
-        
-    </form>
+    </div>
 
     <!--Menu-->
     <div id="menu">

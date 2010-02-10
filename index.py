@@ -23,6 +23,10 @@ from my_func import *
 CATEGORY_IN  = db.Category('in')
 CATEGORY_OUT = db.Category('out')
 
+LINE_SEP = '$\n'
+SEP      = '$#'
+
+
 # DataStore
 #-------------------------------------------------------------------------------------------------------------------------------------------
 class TradeCategory( db.Model ):
@@ -494,11 +498,6 @@ class ListDelete( webapp.RequestHandler ):
             item.delete()
     self.redirect('/list?type='+type)
 
-class Calendar( webapp.RequestHandler ):
-  def get(self):
-    path = os.path.join(os.path.dirname(__file__), 'templates/calendar.html')
-    self.response.out.write( template.render( path, None ))
-    
 class Search( webapp.RequestHandler ):
   def get(self):
     ''' Search TradeItem in the Description '''
@@ -531,31 +530,22 @@ class Search( webapp.RequestHandler ):
                 item['date'] = i.date
                 if i.type == CATEGORY_IN :
                     item['type'] = 'in'
-                    item['in_or_out'] = '收入'
                 else : 
                     item['type'] = 'out'
-                    item['in_or_out'] = '支出'
                 
                 items.append( item )
                 
                 msg['price_max'] = max( msg['price_max'], i.price )
                 msg['price_total'] += i.price
         
-        cur_offset = cur_offset + my_offset
+        cur_offset += my_offset
         result = query.fetch( limit=500, offset=cur_offset )
     
-    (category_in,category_out) = GetCategory()
-    template_values = {
-      'type': type,
-      'show_type': 'search_result',
-      'category_in' : category_in,
-      'category_out': category_out,
-      'items':items,
-      'msg':msg
-    }
-        
-    path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
-    self.response.out.write( template.render( path, template_values ))
+    html = ''
+    for i in items:
+        #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
+        html += '%s%s%s%s%s%s%s%s%s%s%s%s' % (i['type'], SEP, i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
+    self.response.out.write( html )
     
     
   def Old_get(self):
@@ -659,11 +649,9 @@ class Query( webapp.RequestHandler ):
         item['date'] = i.date
         items.append( item )
         
-    line_sep = '$\n'
-    sep      = '$#'
     for i in items:
         #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
-        html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], sep, i['price'], sep, i['category'], sep, i['description'], sep, i['key'], line_sep)
+        html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
         self.response.out.write( html )
     
   def do_query_out(self):
@@ -691,11 +679,11 @@ class Query( webapp.RequestHandler ):
         
         items.append( item )
         
-    line_sep = '$\n'
-    sep      = '$#'
+    LINE_SEP = '$\n'
+    SEP      = '$#'
     for i in items:
         #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
-        html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], sep, i['price'], sep, i['category'], sep, i['description'], sep, i['key'], line_sep)
+        html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
         self.response.out.write( html )
         
   def do_query_category_in(self):
@@ -718,10 +706,8 @@ class Query( webapp.RequestHandler ):
     
     #path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
     #self.response.out.write( template.render( path, template_values ))
-    line_sep = '$\n'
-    sep      = '$#'
     for i in items:
-        html = '%s%s%s%s' % ( i['key'], sep, i['description'], line_sep )
+        html = '%s%s%s%s' % ( i['key'], SEP, i['description'], LINE_SEP )
         self.response.out.write( html )
         
   def do_query_category_out(self):
@@ -743,10 +729,8 @@ class Query( webapp.RequestHandler ):
     }
     #path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
     #self.response.out.write( template.render( path, template_values ))
-    line_sep = '$\n'
-    sep      = '$#'
     for i in items:
-        html = '%s%s%s%s' % ( i['key'], sep, i['description'], line_sep )
+        html = '%s%s%s%s' % ( i['key'], SEP, i['description'], LINE_SEP )
         self.response.out.write( html )
   
   def do_query_user_name(self):
@@ -761,7 +745,6 @@ application = webapp.WSGIApplication([
   ('/list_add',  ListAdd),
   ('/list_edit', ListEdit),
   ('/list_delete', ListDelete),
-  ('/calendar', Calendar),
   ('/search', Search),
   ('/test', Test),
   ('/query', Query),
