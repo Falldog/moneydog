@@ -64,6 +64,23 @@ a:hover {text-decoration: underline; color: blue;}
     float: left;
     padding-left: 10px;
     padding-right: 10px;
+    padding-top: 5px;
+    
+    font-size: 18px;
+}
+
+.MenuBrowseType_Hover
+{
+    background-color:#f5f5e5;
+}
+.MenuBrowseType_Focus
+{
+    background-color:#e5f5f5;
+}
+.MenuBrowseTypeWrap
+{
+    float: left;
+    height: 32px;
 }
 
 #add_input_btn

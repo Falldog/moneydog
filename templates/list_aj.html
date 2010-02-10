@@ -87,36 +87,15 @@ $(function() {
     // Bind event ...
     g_eventMgr.bind('Refresh Page', RefreshPage);
     
-    $("#query_out").click( function(){
-        $('#trade_list').show();
-        $('#category_table').hide();
-        m_analytics.Show();
-        g_query_type = QUERY_TYPE_OUT;
-        QueryData_Trade();
-        QueryData_Category();
-    });
-    $("#query_in").click(function() {
-        $('#trade_list').show();
-        $('#category_table').hide();
-        m_analytics.Show();
-        g_query_type = QUERY_TYPE_IN;
-        QueryData_Trade();
-        QueryData_Category();
-    });
-    $("#query_category_out").click( function(){
-        $('#trade_list').hide();
-        $('#category_table').show();
-        m_analytics.Hide();
-        g_query_type = QUERY_TYPE_CATEGORY_OUT;
-        QueryData_Category();
-    });
-    $("#query_category_in").click(function() {
-        $('#trade_list').hide();
-        $('#category_table').show();
-        m_analytics.Hide();
-        g_query_type = QUERY_TYPE_CATEGORY_IN;
-        QueryData_Category();
-    });
+    $("#query_out").click( function(){          ChangeBrowseType( QUERY_TYPE_OUT          ); });
+    $("#query_in").click(function() {           ChangeBrowseType( QUERY_TYPE_IN           ); });
+    $("#query_category_out").click( function(){ ChangeBrowseType( QUERY_TYPE_CATEGORY_OUT ); });
+    $("#query_category_in").click(function() {  ChangeBrowseType( QUERY_TYPE_CATEGORY_IN  ); });
+    
+    //Assign menu hover css
+    $('.MenuBrowseTypeWrap').hover( function(){ $(this).addClass('MenuBrowseType_Hover')},
+                                    function(){ $(this).removeClass('MenuBrowseType_Hover')} )
+    
     
     $("#img_add").click( function(){
         $("#dialog_add").dialog('open');
@@ -158,8 +137,8 @@ $(function() {
         AssignSelectDate(y,m);
         QueryData_Trade();
     });
-    g_query_type = QUERY_TYPE_OUT;
-    QueryData_Trade();
+    
+    ChangeBrowseType(g_query_type);
     
     
     function Init_Dialog(){
@@ -231,6 +210,26 @@ $(function() {
             }
         });
         
+    }
+    
+    function ChangeBrowseType(type){
+        g_query_type = type;
+        if( IsBrowseTrade() ){
+            $('#trade_list').show();
+            $('#category_table').hide();
+            m_analytics.Show();
+            QueryData_Trade();
+        }
+        else if( IsBrowseCategory() ){
+            $('#trade_list').hide();
+            $('#category_table').show();
+            m_analytics.Hide();
+            QueryData_Category();
+        }
+        
+        //Assign menu css
+        $('.MenuBrowseTypeWrap').removeClass('MenuBrowseType_Focus');
+        $('#query_'+g_query_type+'_wrap').addClass('MenuBrowseType_Focus');
     }
     
     function QueryUserName(){
@@ -482,10 +481,18 @@ $(function() {
 
     <!--Menu-->
     <div id="menu">
-        <div id='query_category_out' class='MenuBrowseType applyLinkCursor'>支出類別</div>
-        <div id='query_category_in'  class='MenuBrowseType applyLinkCursor'>收入類別</div>
-        <div id='query_out' class='MenuBrowseType applyLinkCursor'>支出</div>
-        <div id='query_in'  class='MenuBrowseType applyLinkCursor'>收入</div>
+        <div id='query_category_out_wrap' class='MenuBrowseTypeWrap'>
+            <div id='query_category_out' class='MenuBrowseType applyLinkCursor'>支出類別</div>
+        </div>
+        <div id='query_category_in_wrap' class='MenuBrowseTypeWrap'>
+            <div id='query_category_in'  class='MenuBrowseType applyLinkCursor'>收入類別</div>
+        </div>
+        <div id='query_out_wrap' class='MenuBrowseTypeWrap'>
+            <div id='query_out' class='MenuBrowseType applyLinkCursor'>支出</div>
+        </div>
+        <div id='query_in_wrap' class='MenuBrowseTypeWrap'>
+            <div id='query_in'  class='MenuBrowseType applyLinkCursor'>收入</div>
+        </div>
     </div>
     <div id='add_input_btn'> 新增資料 <img id='img_add' class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
     
