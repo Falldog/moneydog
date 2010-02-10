@@ -63,6 +63,16 @@
         var trs = $('#add_table tbody tr');
         if( IsBrowseTrade() )
         {
+            //Check price
+            for( var i=0 ; i < trs.length ; i++ ){
+                var tr = trs.eq(i);
+                if( tr.find('.add_price').val().trim()=='' ){
+                    MessageBox('請輸入正確的Price!!!');
+                    $('#add_progressbar').css('display', 'none');
+                    return;
+                }
+            }
+            
             for( var i=0 ; i < trs.length ; i++ ){
                 var tr = trs.eq(i);
                 var cmd = '&item_price='      +tr.find('.add_price').val()+
