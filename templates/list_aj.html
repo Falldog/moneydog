@@ -98,6 +98,7 @@ $(function() {
     
     
     $("#img_add").click( function(){
+        $.ui.dialog.maxZ = 1000; #make sure the z-index of m_addDialog keep in the maxZ range
         $("#dialog_add").dialog('open');
         $('#add_progressbar').progressbar({value: 0});
         $('#add_progressbar').css('display', 'none');
@@ -224,8 +225,8 @@ $(function() {
             $('#trade_list').hide();
             $('#category_table').show();
             m_analytics.Hide();
-            QueryData_Category();
         }
+        QueryData_Category();
         
         //Assign menu css
         $('.MenuBrowseTypeWrap').removeClass('MenuBrowseType_Focus');
