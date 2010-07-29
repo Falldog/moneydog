@@ -81,7 +81,7 @@ function CAnalytics()
         //Refresh Analytics Chart via Google CHART APIs
         url = 'http://chart.apis.google.com/chart?';
         url += 'cht=p3'; //3D
-        url += '&chs=350x100'; //size
+        url += '&chs=500x150'; //size
         url += '&chco=3366CC'; //color
         detail = '&chd=t:'; // Ex: chd=t:30,10,60
         descript = '&chl='; //Ex: chl=Test|Type|Income
