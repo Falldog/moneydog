@@ -73,7 +73,33 @@ function CAnalytics()
         $('#analytics_sum_table tbody').append( '<tr sum="'+sum+'" max="'+max+'"><td>最大值</td><td>'+IntAddComma(max)+'</td></tr>' );
         
         __AssignCss();
+        _Refresh_Chart(anal_arr, sum);
     }
+    
+    function _Refresh_Chart(anal_arr, sum)
+    {
+        //Refresh Analytics Chart via Google CHART APIs
+        url = 'http://chart.apis.google.com/chart?';
+        url += 'cht=p3'; //3D
+        url += '&chs=350x100'; //size
+        url += '&chco=3366CC'; //color
+        detail = '&chd=t:'; // Ex: chd=t:30,10,60
+        descript = '&chl='; //Ex: chl=Test|Type|Income
+        for( var i=0 ; i < anal_arr.length ; i++ )
+        {
+            perc = parseInt(anal_arr[i].sum/sum*100);
+            detail += perc
+            descript += (anal_arr[i].description + ' ('+perc+'%)');
+            if(i!=anal_arr.length-1){
+                detail += ',';
+                descript += '|';
+            }
+        }
+        url += detail;
+        url += descript;
+        $('#img_analytics_chart').attr('src', url);
+    }
+    
     
     function __AssignCss()
     {
