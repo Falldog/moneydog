@@ -272,7 +272,6 @@ $(function() {
     }
     
     function QueryData_Trade() {
-        //alert('QueryData_Trade');
         var y = $("#select_year").val();
         var m = $("#select_month").val();
         $.get("query?type="+g_query_type+"&year="+y+"&month="+m, QueryDataResult_Trade);
@@ -280,7 +279,6 @@ $(function() {
         return false;
     }
     function QueryDataResult_Trade(html) {
-        //alert('QueryDataResult_Trade');
         //Reset the #list_table
         $("#list_table tbody tr").remove();
         
@@ -297,10 +295,18 @@ $(function() {
     
     function Search(){
         var key_words = $('#search_key_words').val();
+        if( !key_words ) return;
+        
         $.get("search?key_words="+key_words, Search_Result);
         ShowLoader();
     }
+    function Search_Category(cate){
+        $.get("searchCate?category="+cate, Search_Result);
+        ShowLoader();
+    }
     function Search_Result(html){
+        $('#trade_list').show();
+        $('#category_table').hide();
         $("#list_table tbody tr").remove();
         
         data = html.split( QUERY_SEP_LINE );
@@ -370,8 +376,10 @@ $(function() {
             var key  = g_category[i].key;
             var desc = g_category[i].description;
             new_html = '<tr key="'+key+'" description="'+desc+'">'
-                         +'<td></td> <td>'+desc+'</td>'
+                         +'<td></td>'
+                         +'<td><div class="category_desc">'+desc+'</div></td>' // click description to search this category
                          +'</tr>';
+                         
             $("#category_table tbody").append(new_html);
             
             $("#category_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_edit_category'   key='"+key+"' alt='編輯' src='./img/edit.png'/>");
@@ -404,6 +412,13 @@ $(function() {
             $('#edit_cate_key').val( tr.attr('key') );
             $('#edit_cate_description').val( tr.attr('description') );
         });
+        $('.img_edit_category').css('cursor', 'pointer');
+    }
+    function AssignSearchCategory(){
+        $(".category_desc").click( function(){
+            Search_Category($(this).text());
+        });
+        $('.category_desc').css('cursor', 'pointer');
         $('.img_edit_category').css('cursor', 'pointer');
     }
     function AssignDeleteForm(){
@@ -458,6 +473,7 @@ $(function() {
         });
         AssignDeleteForm();
         AssignEditCategoryForm();
+        AssignSearchCategory();
     }
     
 });

@@ -21,7 +21,10 @@ my_globals['__file__'] = dev_appserver
 
 #sys.argv = [dev_appserver, 'moneydog-tw']
 sys.argv[0] = dev_appserver
-sys.argv[1] = cwd
+if len(sys.argv) == 1:
+    sys.argv.append(cwd)
+else:
+    sys.argv[1] = cwd
 
 #change current working dir
 os.chdir( GAE_DIR )

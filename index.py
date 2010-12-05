@@ -224,6 +224,7 @@ class Search( webapp.RequestHandler ):
     
     template_values = {}
     words = self.request.get('key_words')
+    words = words.lower()
     #query = TradeItem.all().search( words )
     #print words.encode('utf-8')
     query = TradeItem.gql( "Where user=:1", users.get_current_user() )
@@ -240,7 +241,7 @@ class Search( webapp.RequestHandler ):
     while result :
         for i in result :
             # Find the keyword in the description~
-            if string.find( i.description, words ) >=0 :
+            if string.find( i.description.lower(), words ) >=0 :
                 item = {}
                 item['key'] = i.key()
                 item['price'] = i.price
@@ -262,7 +263,6 @@ class Search( webapp.RequestHandler ):
     
     html = ''
     for i in items:
-        #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
         html += '%s%s%s%s%s%s%s%s%s%s%s%s' % (i['type'], SEP, i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
     self.response.out.write( html )
     
@@ -303,6 +303,58 @@ class Search( webapp.RequestHandler ):
     path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
     self.response.out.write( template.render( path, template_values ))  
     
+class SearchCategory( webapp.RequestHandler ):
+  def get(self):
+    ''' Search TradeItem in the Description '''
+    type = 'search_result'#self.request.get('type')
+    
+    template_values = {}
+    cate_desc = self.request.get('category')
+    #print words.encode('utf-8')
+    query_cate = TradeCategory.gql( "Where user=:1 AND description=:2 ", users.get_current_user(), cate_desc )
+    result = query_cate.fetch(1)
+    if not result:
+        self.response.out.write('')
+        return
+    cate = result[0]
+    query = TradeItem.gql( "Where user=:1 AND category=:2", users.get_current_user(), cate )
+    
+    my_offset = 500
+    cur_offset= 0
+    
+    items = []
+    msg = {}
+    msg['price_max'] = 0
+    msg['price_total'] = 0
+    
+    result = query.fetch( limit=500, offset=cur_offset )
+    while result :
+        for i in result :
+            # Find the keyword in the description~
+            if string.find( i.category.description, cate_desc ) >=0 :
+                item = {}
+                item['key'] = i.key()
+                item['price'] = i.price
+                item['category'] = i.category.description
+                item['description'] = i.description
+                item['date'] = i.date
+                if i.type == CATEGORY_IN :
+                    item['type'] = 'in'
+                else : 
+                    item['type'] = 'out'
+                
+                items.append( item )
+                
+                msg['price_max'] = max( msg['price_max'], i.price )
+                msg['price_total'] += i.price
+        
+        cur_offset += my_offset
+        result = query.fetch( limit=500, offset=cur_offset )
+    
+    html = ''
+    for i in items:
+        html += '%s%s%s%s%s%s%s%s%s%s%s%s' % (i['type'], SEP, i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
+    self.response.out.write( html )
     
     
 class Test( webapp.RequestHandler ):
@@ -464,6 +516,7 @@ application = webapp.WSGIApplication([
   ('/list_edit', ListEdit),
   ('/list_delete', ListDelete),
   ('/search', Search),
+  ('/searchCate', SearchCategory),
   ('/test', Test),
   ('/query', Query),
   ('/list_aj',  ListAjax),
