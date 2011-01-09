@@ -436,7 +436,7 @@ class Query( webapp.RequestHandler ):
     if month==None or month==0:   month = datetime.datetime.now().month
     dt = datetime.datetime(year,month,1)
 
-    query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ORDER BY date", users.get_current_user(), CATEGORY_OUT, datetime.datetime(year,month,1), datetime.datetime(year,month,LastDayOfMonth(dt)) )
+    query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ORDER BY date, description", users.get_current_user(), CATEGORY_OUT, datetime.datetime(year,month,1), datetime.datetime(year,month,LastDayOfMonth(dt)) )
     #query = TradeItem.gql( "WHERE user=:1 AND type=:2 ORDER BY date", users.get_current_user(), CATEGORY_OUT, )
     items = []
     pre_item = {}
