@@ -76,7 +76,7 @@
             for( var i=0 ; i < trs.length ; i++ ){
                 var tr = trs.eq(i);
                 var cmd = '&item_price='      +tr.find('.add_price').val()+
-                          '&item_description='+escape(tr.find('.add_description').val())+
+                          '&item_description='+ConverHTMLSymbol(tr.find('.add_description').val())+
                           '&item_category_id='+tr.find('.add_category').attr('value')+
                           '&item_date='       +tr.find('.add_time').val();
                 cmd = 'list_add?type=' + g_query_type + cmd;
@@ -87,7 +87,7 @@
         {
             for( var i=0 ; i < trs.length ; i++ ){
                 var tr = trs.eq(i);
-                var cmd = '&item_description='+escape(tr.find('.add_description').val());
+                var cmd = '&item_description='+ConverHTMLSymbol(tr.find('.add_description').val());
                 cmd = 'list_add?type=' + g_query_type + cmd;
                 $.get( cmd, onAddCallback );
             }

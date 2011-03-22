@@ -55,4 +55,12 @@
             return IntAddComma( parseInt(num/1000) ) + "," + s;
         }
     }
+    
+    //doesn't use the escape(), it will translate the chinese too.
+    function ConverHTMLSymbol(s)
+    {
+        s = s.replace(/&/g, '%26');
+        s = s.replace(/"/g, '%22');
+        return s;
+    }
 //})
