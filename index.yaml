@@ -24,15 +24,3 @@ indexes:
   - name: user=
   - name: date
 
-# Unused in query history -- copied from input.
-- kind: TradeItem
-  properties:
-  - name: type
-  - name: user
-  - name: date
-
-- kind: TradeItem
-  properties:
-  - name: __searchable_text_index
-  - name: description
-    direction: desc

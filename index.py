@@ -16,7 +16,6 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
 #import mylib.gmemsess
-from mylib import search
 from mylib import gmemsess
 from my_func import *
 
@@ -35,7 +34,7 @@ class TradeCategory( db.Model ):
     description = db.StringProperty(multiline=True)
   
   
-class TradeItem(search.SearchableModel):
+class TradeItem( db.Model ):
     user        = db.UserProperty()
     category    = db.ReferenceProperty( TradeCategory )
     type        = db.CategoryProperty()
@@ -225,8 +224,6 @@ class Search( webapp.RequestHandler ):
     template_values = {}
     words = self.request.get('key_words')
     words = words.lower()
-    #query = TradeItem.all().search( words )
-    #print words.encode('utf-8')
     query = TradeItem.gql( "Where user=:1", users.get_current_user() )
     
     my_offset = 500
@@ -266,42 +263,6 @@ class Search( webapp.RequestHandler ):
         html += '%s%s%s%s%s%s%s%s%s%s%s%s' % (i['type'], SEP, i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
     self.response.out.write( html )
     
-    
-  def Old_get(self):
-    ''' (Old Style... may not work.)Search TradeItem in the SearchDB '''
-    type = self.request.get('type')
-    
-    template_values = {}
-    words = self.request.get('key_words')
-    query = TradeItem.all().search( words )
-    
-    items = []
-    msg = {}
-    msg['price_max'] = 0
-    msg['price_total'] = 0
-    for i in query :
-        item = {}
-        item['key'] = i.key()
-        item['price'] = i.price
-        item['category'] = i.category.description
-        item['description'] = i.description
-        item['date'] = i.date
-        items.append( item )
-
-        msg['price_max'] = max( msg['price_max'], i.price )
-        msg['price_total'] += i.price
-    (category_in,category_out) = GetCategory()
-    template_values = {
-      'type': type,
-      'show_type': 'trade',
-      'category_in' : category_in,
-      'category_out': category_out,
-      'items':items,
-      'msg':msg
-    }
-        
-    path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
-    self.response.out.write( template.render( path, template_values ))  
     
 class SearchCategory( webapp.RequestHandler ):
   def get(self):
