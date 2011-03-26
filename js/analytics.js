@@ -41,7 +41,13 @@ function CAnalytics()
             list.push(new __CCateSum(descpt, value));
         }
     }
-
+    
+    function __SumAddTrade(list, date, value)
+    {
+        var day = parseInt(date.split('-')[2]) - 1;
+        list[day] += value;
+    }
+    
     function Refresh()
     {
         var max = 0;
@@ -49,12 +55,17 @@ function CAnalytics()
         
         var anal_arr = Array();
         var trs = $('#list_table tbody tr');
+        
+        var sumOfDays = Array(31);
+        for( var i=0 ; i< 31 ; i++ ) sumOfDays[i]=0;
+        
         for( var i=0 ; i< trs.length ; i++ )
         {
             var tr = trs.eq(i);
             var cate = tr.attr('category');
             var price = parseInt(tr.attr('price'));
             __CategoryAddTrade( anal_arr, cate, price );
+            __SumAddTrade(sumOfDays, tr.attr('time'), price);
             
             if( price > max ) max = price;
             sum += price;
@@ -69,11 +80,12 @@ function CAnalytics()
         
         //analytics_sum_table
         $('#analytics_sum_table tbody tr').remove();
-        $('#analytics_sum_table tbody').append( '<tr sum="'+sum+'" max="'+max+'"><td>總值  </td><td>'+IntAddComma(sum)+'</td></tr>' );
+        $('#analytics_sum_table tbody').append( '<tr sum="'+sum+'" max="'+max+'"><td>總值</td><td>'+IntAddComma(sum)+'</td></tr>' );
         $('#analytics_sum_table tbody').append( '<tr sum="'+sum+'" max="'+max+'"><td>最大值</td><td>'+IntAddComma(max)+'</td></tr>' );
         
         __AssignCss();
         _Refresh_Chart(anal_arr, sum);
+        _Refresh_SumOfDaysChart(sumOfDays);
     }
     
     function _Refresh_Chart(anal_arr, sum)
@@ -100,6 +112,23 @@ function CAnalytics()
         $('#img_analytics_chart').attr('src', url);
     }
     
+    function _Refresh_SumOfDaysChart(sumOfDays)
+    {
+        //Refresh Analytics BarChart via Google CHART APIs
+        var max = MaxOfArray(sumOfDays);
+        url = 'http://chart.apis.google.com/chart?';
+        url += 'chxt=y,x';
+        url += '&chxl=1:|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31';
+        url += '&chxr=0,0,'+max+'|1,0,31'; //range
+        url += '&chbh=a';
+        url += '&chs=480x225';
+        url += '&chds=0,'+max;
+        url += '&cht=bvg';
+        url += '&chco=3399CC'; //color
+        url += '&chd=t:' + sumOfDays.toString(); //data
+        url += '&chtt=Sum+of+Days'; //title
+        $('#img_analytics_sumOfDaysChart').attr('src', url);
+    }
     
     function __AssignCss()
     {

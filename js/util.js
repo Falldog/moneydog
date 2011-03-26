@@ -63,4 +63,13 @@
         s = s.replace(/"/g, '%22');
         return s;
     }
+    
+    function MaxOfArray(l)
+    {
+        var _max = 0;
+        for(var i=0 ; i < l.length ; i++)
+            if( l[i] > _max )
+                _max = l[i];
+        return _max;
+    }
 //})
