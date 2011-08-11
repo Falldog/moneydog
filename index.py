@@ -15,6 +15,8 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
+from django.utils import simplejson as json
+
 #import mylib.gmemsess
 from mylib import gmemsess
 from my_func import *
@@ -240,11 +242,11 @@ class Search( webapp.RequestHandler ):
             # Find the keyword in the description~
             if string.find( i.description.lower(), words ) >=0 :
                 item = {}
-                item['key'] = i.key()
+                item['key'] = str(i.key())
                 item['price'] = i.price
                 item['category'] = i.category.description
                 item['description'] = i.description
-                item['date'] = i.date
+                item['date'] = str(i.date)
                 if i.type == CATEGORY_IN :
                     item['type'] = 'in'
                 else : 
@@ -258,10 +260,7 @@ class Search( webapp.RequestHandler ):
         cur_offset += my_offset
         result = query.fetch( limit=500, offset=cur_offset )
     
-    html = ''
-    for i in items:
-        html += '%s%s%s%s%s%s%s%s%s%s%s%s' % (i['type'], SEP, i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
-    self.response.out.write( html )
+    self.response.out.write( json.dumps(items) )
     
     
 class SearchCategory( webapp.RequestHandler ):
@@ -294,11 +293,11 @@ class SearchCategory( webapp.RequestHandler ):
             # Find the keyword in the description~
             if string.find( i.category.description, cate_desc ) >=0 :
                 item = {}
-                item['key'] = i.key()
+                item['key'] = str(i.key())
                 item['price'] = i.price
                 item['category'] = i.category.description
                 item['description'] = i.description
-                item['date'] = i.date
+                item['date'] = str(i.date)
                 if i.type == CATEGORY_IN :
                     item['type'] = 'in'
                 else : 
@@ -312,11 +311,7 @@ class SearchCategory( webapp.RequestHandler ):
         cur_offset += my_offset
         result = query.fetch( limit=500, offset=cur_offset )
     
-    html = ''
-    for i in items:
-        html += '%s%s%s%s%s%s%s%s%s%s%s%s' % (i['type'], SEP, i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
-    self.response.out.write( html )
-    
+    self.response.out.write( json.dumps(items) )
     
 class Test( webapp.RequestHandler ):
   def post(self):
@@ -333,6 +328,9 @@ class ListAjax( webapp.RequestHandler ):
     self.response.out.write( template.render( path, None ))
 
 class Query( webapp.RequestHandler ):
+  def _outputItemsByJson(self, items):
+    self.response.out.write( json.dumps(items) )
+  
   def post(self):
     get()
     
@@ -374,17 +372,14 @@ class Query( webapp.RequestHandler ):
     items = []
     for i in query :
         item = {}
-        item['key'] = i.key()
+        item['key'] = str(i.key())
         item['price'] = i.price
         item['category'] = i.category.description
         item['description'] = i.description
-        item['date'] = i.date
+        item['date'] = str(i.date)
         items.append( item )
         
-    for i in items:
-        #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
-        html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
-        self.response.out.write( html )
+    self._outputItemsByJson(items)
     
   def do_query_out(self):
     try:
@@ -403,27 +398,22 @@ class Query( webapp.RequestHandler ):
     pre_item = {}
     for i in query :
         item = {}
-        item['key'] = i.key()
+        item['key'] = str(i.key())
         item['price'] = i.price
         item['category'] = i.category.description
         item['description'] = i.description
-        item['date'] = i.date
+        item['date'] = str(i.date)
         
         items.append( item )
         
-    LINE_SEP = '$\n'
-    SEP      = '$#'
-    for i in items:
-        #html = '<tr> <td></td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>' % (i['date'], i['price'], i['category'], i['description'])
-        html = '%s%s%s%s%s%s%s%s%s%s' % (i['date'], SEP, i['price'], SEP, i['category'], SEP, i['description'], SEP, i['key'], LINE_SEP)
-        self.response.out.write( html )
-        
+    self._outputItemsByJson(items)
+    
   def do_query_category_in(self):
     result = TradeCategory.gql( "Where user=:1 AND type=:2", users.get_current_user(), db.Category('in') )
     items = []
     for i in result :
         item = {}
-        item['key'] = i.key()
+        item['key'] = str(i.key())
         item['user'] = i.user.nickname()
         item['description'] = i.description
         items.append( item )
@@ -438,16 +428,14 @@ class Query( webapp.RequestHandler ):
     
     #path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
     #self.response.out.write( template.render( path, template_values ))
-    for i in items:
-        html = '%s%s%s%s' % ( i['key'], SEP, i['description'], LINE_SEP )
-        self.response.out.write( html )
+    self._outputItemsByJson(items)
         
   def do_query_category_out(self):
     result = TradeCategory.gql( "Where user=:1 AND type=:2", users.get_current_user(), 'out' )
     items = []
     for i in result :
         item = {}
-        item['key'] = i.key()
+        item['key'] = str(i.key())
         item['user'] = i.user.nickname()
         item['description'] = i.description
         items.append( item )
@@ -461,9 +449,7 @@ class Query( webapp.RequestHandler ):
     }
     #path = os.path.join(os.path.dirname(__file__), 'templates/list.html')
     #self.response.out.write( template.render( path, template_values ))
-    for i in items:
-        html = '%s%s%s%s' % ( i['key'], SEP, i['description'], LINE_SEP )
-        self.response.out.write( html )
+    self._outputItemsByJson(items)
   
   def do_query_user_name(self):
     self.response.out.write( users.get_current_user().nickname() )

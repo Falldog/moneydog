@@ -33,6 +33,13 @@ var QUERY_TYPE_CATEGORY_OUT = 'category_out';
 var QUERY_TYPE_CATEGORY_IN  = 'category_in';
 var QUERY_TYPE_SEARCH       = 'search';
 
+//Query result key from JSON
+var QJ_KEY_KEY      = 'key';
+var QJ_KEY_PRICE    = 'price';
+var QJ_KEY_CATEGORY = 'category';
+var QJ_KEY_DESC     = 'description';
+var QJ_KEY_TIME     = 'date';
+
 var MAX_ADD_NUM = 10;
 var g_query_type = QUERY_TYPE_OUT;
 var g_category = new Array();
@@ -251,19 +258,17 @@ $(function() {
         var type = g_query_type;
         if( g_query_type == QUERY_TYPE_OUT || g_query_type == QUERY_TYPE_IN )
             type = "category_" + g_query_type;
-        $.get("query?type="+type, QueryDataResult_Category);
+        $.get("query?type="+type, QueryDataResult_Category, "json");
         ShowLoader();
     }
-    function QueryDataResult_Category(html){
+    function QueryDataResult_Category(json_data){
         delete g_category;
         g_category = new Array();
-        data = html.split( QUERY_SEP_LINE );
-        for( var i=0 ; i < data.length ; i++ )
+        
+        var jdata = JSON.parse(json_data);
+        for( var i=0 ; i < jdata.length ; i++ )
         {
-            if( data[i]=='' ) continue;
-            _data = data[i].split( QUERY_SEP );
-            if( _data.length < 2 ) continue;
-            g_category[i] = new CCategory( _data[0], _data[1] );
+            g_category[i] = new CCategory( jdata[i][QJ_KEY_KEY], jdata[i][QJ_KEY_DESC] );
         }
         
         AssignCategory2Select( $('#edit_category') );
@@ -274,19 +279,19 @@ $(function() {
     function QueryData_Trade() {
         var y = $("#select_year").val();
         var m = $("#select_month").val();
-        $.get("query?type="+g_query_type+"&year="+y+"&month="+m, QueryDataResult_Trade);
+        $.get("query?type="+g_query_type+"&year="+y+"&month="+m, QueryDataResult_Trade, "json");
         ShowLoader();
         return false;
     }
-    function QueryDataResult_Trade(html) {
+    function QueryDataResult_Trade(json_data) {
         //Reset the #list_table
         $("#list_table tbody tr").remove();
         
-        data = html.split( QUERY_SEP_LINE );
-        for( var i=0 ; i < data.length ; i++ )
+        //alert(json_data);
+        var jdata = JSON.parse(json_data);
+        for( var i=0 ; i < jdata.length ; i++ )
         {
-            item = data[i].split( QUERY_SEP );
-            AppendTradeData(item);
+            AppendTradeData(jdata[i]);
         }
         AssignCss_ListTableAllTrade();
         HideLoader();
@@ -297,23 +302,22 @@ $(function() {
         var key_words = $('#search_key_words').val();
         if( !key_words ) return;
         
-        $.get("search?key_words="+key_words, Search_Result);
+        $.get("search?key_words="+key_words, Search_Result, "json");
         ShowLoader();
     }
     function Search_Category(cate){
-        $.get("searchCate?category="+cate, Search_Result);
+        $.get("searchCate?category="+cate, Search_Result, "json");
         ShowLoader();
     }
-    function Search_Result(html){
+    function Search_Result(json_data){
         $('#trade_list').show();
         $('#category_table').hide();
         $("#list_table tbody tr").remove();
         
-        data = html.split( QUERY_SEP_LINE );
-        for( var i=0 ; i < data.length ; i++ )
+        var jdata = JSON.parse(json_data);
+        for( var i=0 ; i < jdata.length ; i++ )
         {
-            item = data[i].split( QUERY_SEP );
-            AppendTradeData(item.slice(1));//remove first element 'type'
+            AppendTradeData(jdata[i]);
         }
         AssignCss_ListTableAllTrade();
         HideLoader();
@@ -430,13 +434,12 @@ $(function() {
         });
         $('.img_delete').css('cursor', 'pointer');
     }
-    function AppendTradeData(data){
-        if( data.length < 5 ) return;
-        var time  = data[0];
-        var price = data[1];
-        var cate  = data[2];
-        var desc  = data[3];
-        var key   = data[4];
+    function AppendTradeData(jdata){
+        var time  = jdata[QJ_KEY_TIME];
+        var price = jdata[QJ_KEY_PRICE];
+        var cate  = jdata[QJ_KEY_CATEGORY];
+        var desc  = jdata[QJ_KEY_DESC];
+        var key   = jdata[QJ_KEY_KEY];
         new_html = '<tr time="'+time+'" price="'+price+'" category="'+cate+'" description="'+desc+'" key="'+key+'" >'
                      +'<td></td> <td>'+time+'</td> <td>'+IntAddComma(price)+'</td> <td>'+cate+'</td> <td>'+desc+'</td>'
                      +'</tr>'

@@ -66,7 +66,8 @@
             //Check price
             for( var i=0 ; i < trs.length ; i++ ){
                 var tr = trs.eq(i);
-                if( tr.find('.add_price').val().trim()=='' ){
+                var price = $.trim( tr.find('.add_price').val() );
+                if( price == '' ){
                     MessageBox('請輸入正確的Price!!!');
                     $('#add_progressbar').css('display', 'none');
                     return;
