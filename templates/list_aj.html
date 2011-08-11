@@ -2,6 +2,7 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-TW" lang="zh-TW">
 <head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 
 <title>MoneyDog - List</title>
 <link type="text/css" rel="stylesheet" href="css/list.css" />
@@ -302,7 +303,7 @@ $(function() {
         var key_words = $('#search_key_words').val();
         if( !key_words ) return;
         
-        $.get("search?key_words="+key_words, Search_Result, "json");
+        $.get("search?key_words="+encodeURIComponent(key_words), Search_Result, "json");
         ShowLoader();
     }
     function Search_Category(cate){
