@@ -24,10 +24,6 @@ from my_func import *
 CATEGORY_IN  = db.Category('in')
 CATEGORY_OUT = db.Category('out')
 
-LINE_SEP = '$\n'
-SEP      = '$#'
-
-
 # DataStore
 #-------------------------------------------------------------------------------------------------------------------------------------------
 class TradeCategory( db.Model ):
@@ -315,7 +311,7 @@ class SearchCategory( webapp.RequestHandler ):
     
 class Test( webapp.RequestHandler ):
   def post(self):
-    get(self)
+    self.get()
     
   def get(self):
     print users.get_current_user().nickname()
@@ -332,7 +328,7 @@ class Query( webapp.RequestHandler ):
     self.response.out.write( json.dumps(items) )
   
   def post(self):
-    get()
+    self.get()
     
   def get(self):
     #self.response.headers['Content-Type'] = 'text/plain'
@@ -466,12 +462,12 @@ application = webapp.WSGIApplication([
   ('/searchCate', SearchCategory),
   ('/test', Test),
   ('/query', Query),
-  ('/list_aj',  ListAjax),
+  ('/list_aj', ListAjax),
 ], debug=True)
 
 application_login = webapp.WSGIApplication([
   ('/login', Login),
-  (r'/.*', MainPage),
+  ('/.*', MainPage),
 ], debug=True)
 
 def main():
