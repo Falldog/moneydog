@@ -48,6 +48,8 @@ $(function() {
     $("#query_in").click(function() {           ChangeBrowseType( QUERY_TYPE_IN           ); });
     $("#query_category_out").click( function(){ ChangeBrowseType( QUERY_TYPE_CATEGORY_OUT ); });
     $("#query_category_in").click(function() {  ChangeBrowseType( QUERY_TYPE_CATEGORY_IN  ); });
+    $("#query_summary_out").click(function() {  ChangeBrowseType( QUERY_TYPE_SUMMARY_OUT  ); });
+    $("#query_summary_in").click(function() {   ChangeBrowseType( QUERY_TYPE_SUMMARY_IN   ); });
     
     //Assign menu hover css
     $('.MenuBrowseTypeWrap').hover( function(){ $(this).addClass('MenuBrowseType_Hover')},
@@ -78,23 +80,8 @@ $(function() {
     Init_Dialog();
     Init_MessageBox();
     CreateSelectDate();
-    $("#img_arrow_previous").click( function(){
-        var y = parseInt( $("#select_year").val() );
-        var m = parseInt( $("#select_month").val() );
-        m -= 1;
-        if( m==0 ){ y-=1; m=12; }
-        AssignSelectDate(y,m);
-        QueryData_Trade();
-    });
-    $("#img_arrow_next").click( function(){
-        var y = parseInt( $("#select_year").val() );
-        var m = parseInt( $("#select_month").val() );
-        m = parseInt(m);
-        m += 1;
-        if( m==13 ){ y+=1; m=1; }
-        AssignSelectDate(y,m);
-        QueryData_Trade();
-    });
+    $("#img_arrow_previous").click( ClickPrevMonth );
+    $("#img_arrow_next").click( ClickNextMonth );
     
     ChangeBrowseType(g_query_type);
     
@@ -174,23 +161,83 @@ $(function() {
     function ChangeBrowseType(type){
         g_query_type = type;
         if( IsBrowseTrade() ){
+            $('#add_input_btn').show();
             $('#trade_list').show();
             $('#category_table').hide();
             m_analytics.Show();
             QueryData_Trade();
         }
         else if( IsBrowseCategory() ){
+            $('#add_input_btn').show();
             $('#trade_list').hide();
             $('#category_table').show();
             m_analytics.Hide();
         }
+        else if( IsBrowseSummary() ){
+            $('#add_input_btn').hide();
+            $('#trade_list').hide();
+            $('#category_table').hide();
+            
+            m_analytics.Show();
+            QueryData_Summary();
+        }
+        UpdateDateSelector();
         QueryData_Category();
         
         //Assign menu css
         $('.MenuBrowseTypeWrap').removeClass('MenuBrowseType_Focus');
         $('#query_'+g_query_type+'_wrap').addClass('MenuBrowseType_Focus');
     }
-
+    
+    function UpdateDateSelector(){
+        if( IsBrowseCategory() )
+            $('#date_selector').hide();
+        else
+            $('#date_selector').show();
+        
+        if( IsBrowseSummary() )
+            $('#select_month').hide();
+        else
+            $('#select_month').show();
+    }
+    
+    function ClickPrevMonth(){
+        var y = parseInt( $("#select_year").val() );
+        var m = parseInt( $("#select_month").val() );
+        if(IsBrowseSummary())
+        {
+            y -= 1;
+            AssignSelectDate(y,m);
+            QueryData_Summary();
+        }
+        else
+        {
+            m -= 1;
+            if( m==0 ){ y-=1; m=12; }
+            AssignSelectDate(y,m);
+            QueryData_Trade();
+        }
+    }
+    
+    function ClickNextMonth(){
+        var y = parseInt( $("#select_year").val() );
+        var m = parseInt( $("#select_month").val() );
+        if(IsBrowseSummary())
+        {
+            y += 1;
+            AssignSelectDate(y,m);
+            QueryData_Summary();
+        }
+        else
+        {
+            m = parseInt(m);
+            m += 1;
+            if( m==13 ){ y+=1; m=1; }
+            AssignSelectDate(y,m);
+            QueryData_Trade();
+        }
+    }
+    
     function QueryUserName(){
         cmd = "query?type=user_name";
         $.get( cmd, function callback(html){
@@ -240,6 +287,18 @@ $(function() {
         AssignCss_ListTableAllTrade();
         HideLoader();
         m_analytics.Refresh();
+    }
+    
+    function QueryData_Summary() {
+        var y = $("#select_year").val();
+        $.get("query?type="+g_query_type+"&year="+y, QueryDataResult_Summary, "json");
+        ShowLoader();
+        return false;
+    }
+    function QueryDataResult_Summary(json_data) {
+        HideLoader();
+        var jdata = JSON.parse(json_data);
+        m_analytics.RefreshSummary(jdata);
     }
 
     function Search(){
@@ -456,18 +515,27 @@ $(function() {
         <div id='query_in_wrap' class='MenuBrowseTypeWrap'>
             <div id='query_in'  class='MenuBrowseType applyLinkCursor'>收入</div>
         </div>
+        <div id='query_summary_out_wrap' class='MenuBrowseTypeWrap'>
+            <div id='query_summary_out'  class='MenuBrowseType applyLinkCursor'>年度支出</div>
+        </div>
+        <div id='query_summary_in_wrap' class='MenuBrowseTypeWrap'>
+            <div id='query_summary_in'  class='MenuBrowseType applyLinkCursor'>年度收入</div>
+        </div>
     </div>
     <div id='add_input_btn'> 新增資料 <img id='img_add' class='applyLinkCursor' alt='Add' src='./img/add.png'/></div>
     
-    <!-- Trad List -->
-    <div id="trade_list">
+    <!-- Date Selector -->
+    <div id="date_selector">
         <div id='m_select_month'>
             <img id='img_arrow_previous' class='applyLinkCursor' alt='Previous' src='./img/previous.png'/>
               <select id="select_year"></select>
               <select id="select_month"></select>
             <img id='img_arrow_next' class='applyLinkCursor' alt='Next' src='./img/next.png'/>
         </div>
-        
+    </div>
+    
+    <!-- Trad List -->
+    <div id="trade_list">
         <table id='list_table' border='0' align='center'>
             <thead> 
                 <tr>

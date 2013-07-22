@@ -310,50 +310,25 @@ class Query( webapp.RequestHandler ):
         
         if type==None or type=="":
             type = 'out'
-            self.do_query_out()
+            self.do_query_trade(CATEGORY_OUT)
         elif type=='in':
-            self.do_query_in()
+            self.do_query_trade(CATEGORY_IN)
         elif type=='out':
-            self.do_query_out()
+            self.do_query_trade(CATEGORY_OUT)
         elif type=='category_in':
-            self.do_query_category_in();
+            self.do_query_category(CATEGORY_IN)
         elif type=='category_out':
-            self.do_query_category_out()
+            self.do_query_category(CATEGORY_OUT)
         elif type=='search_category':
             self.do_search_category()
         elif type=='user_name':
             self.do_query_user_name()
+        elif type=='summary_out':
+            self.do_query_summary(CATEGORY_OUT)
+        elif type=='summary_in':
+            self.do_query_summary(CATEGORY_IN)
             
-    def do_query_in(self):
-        try:
-            year =  int( self.request.get('year') )
-            month = int( self.request.get('month') )
-        except ValueError:
-            year  = 0
-            month = 0
-        if year==None or year==0:     year = datetime.datetime.now().year
-        if month==None or month==0:   month = datetime.datetime.now().month
-        dt = datetime.datetime(year,month,1)
-        
-        query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ORDER BY date", 
-                               users.get_current_user(), 
-                               CATEGORY_IN, 
-                               datetime.datetime(year,month,1), 
-                               datetime.datetime(year,month,LastDayOfMonth(dt)) )
-        items = []
-        for i in query :
-            item = {
-                'key'         : str(i.key()),
-                'price'       : i.price,
-                'category'    : i.category.description,
-                'description' : i.description,
-                'date'        : str(i.date),
-            }
-            items.append( item )
-            
-        self._outputItemsByJson(items)
-        
-    def do_query_out(self):
+    def do_query_trade(self, category=CATEGORY_OUT):
         try:
             year =  int( self.request.get('year') )
             month = int( self.request.get('month') )
@@ -366,11 +341,10 @@ class Query( webapp.RequestHandler ):
     
         query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4 ORDER BY date, description", 
                                users.get_current_user(), 
-                               CATEGORY_OUT, 
+                               category, 
                                datetime.datetime(year,month,1), 
                                datetime.datetime(year,month,LastDayOfMonth(dt)) )
         items = []
-        pre_item = {}
         for i in query:
             item = {
                 'key'         : str(i.key()),
@@ -383,26 +357,10 @@ class Query( webapp.RequestHandler ):
             
         self._outputItemsByJson(items)
         
-    def do_query_category_in(self):
+    def do_query_category(self, category=CATEGORY_OUT):
         result = TradeCategory.gql( "Where user=:1 AND type=:2", 
                                     users.get_current_user(), 
-                                    CATEGORY_IN )
-        items = []
-        for i in result:
-            item = {
-                'key'         : str(i.key()),
-                'user'        : i.user.nickname(),
-                'description' : i.description,
-            }
-            items.append( item )
-        
-        items.sort(key=lambda x:x['description'])
-        self._outputItemsByJson(items)
-            
-    def do_query_category_out(self):
-        result = TradeCategory.gql( "Where user=:1 AND type=:2", 
-                                    users.get_current_user(), 
-                                    CATEGORY_OUT )
+                                    category )
         items = []
         for i in result :
             item = {
@@ -414,7 +372,34 @@ class Query( webapp.RequestHandler ):
         
         items.sort(key=lambda x:x['description'])
         self._outputItemsByJson(items)
-      
+    
+    def do_query_summary(self, category=CATEGORY_OUT):
+        try:
+            year =  int( self.request.get('year') )
+        except ValueError:
+            year = datetime.datetime.now().year
+        
+        summary = [] #store the data in year
+        for m in range(1, 13):
+            # Get the trade items by monthly
+            dt = datetime.datetime(year,m,1)
+            query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4", 
+                                   users.get_current_user(), 
+                                   category, 
+                                   datetime.datetime(year,m,1), 
+                                   datetime.datetime(year,m,LastDayOfMonth(dt)) )
+            items = []
+            for i in query:
+                item = {
+                    'key'         : str(i.key()),
+                    'price'       : i.price,
+                    'category'    : i.category.description,
+                }
+                items.append( item )
+            summary.append(items)
+            
+        self._outputItemsByJson(summary)
+    
     def do_query_user_name(self):
         self.response.out.write( users.get_current_user().nickname() )
 

@@ -51,7 +51,7 @@ a:hover {text-decoration: underline; color: blue;}
 
 #menu
 {
-    width: 300px;
+    width: 500px;
     height: 50px;
     margin-left:  auto;
     margin-right: auto;
@@ -84,6 +84,12 @@ a:hover {text-decoration: underline; color: blue;}
 }
 
 #add_input_btn
+{
+    margin:0px auto;
+    text-align: center;
+}
+
+#date_selector
 {
     margin:0px auto;
     text-align: center;

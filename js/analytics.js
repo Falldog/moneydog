@@ -1,6 +1,7 @@
 function CAnalytics()
 {
     this.Refresh = Refresh;
+    this.RefreshSummary = RefreshSummary;
     this.Show    = Show;
     this.Hide    = Hide;
     
@@ -87,6 +88,47 @@ function CAnalytics()
         _Refresh_Chart(anal_arr, sum);
         _Refresh_SumOfDaysChart(sumOfDays);
     }
+
+    function RefreshSummary(jdata)
+    {
+        var sum = 0;
+        var max_month = 0;
+        var anal_arr = Array();
+        var sumOfMonth = Array(12);
+        for( var i=0 ; i< 12 ; i++ ) sumOfMonth[i]=0;
+        
+        for( var m=0 ; m< jdata.length ; m++ )
+        {
+            var month = jdata[m];
+            for( var i=0 ; i < month.length ; i++ )
+            {
+                var item = month[i];
+                var cate = item[QJ_KEY_CATEGORY];
+                var price = parseInt(item[QJ_KEY_PRICE]);
+                __CategoryAddTrade( anal_arr, cate, price );
+                sumOfMonth[m] += price;
+            }
+            if( sumOfMonth[m] > max_month ) max_month = sumOfMonth[m];
+            sum += sumOfMonth[m];
+        }
+        
+        //analytics_table
+        anal_arr.sort( __SortCateSum );
+        $('#analytics_table tbody tr').remove();
+        for( var i=0 ; i < anal_arr.length ; i++ ){
+            $('#analytics_table tbody').append( '<tr description="'+anal_arr[i].description+'" sum="'+anal_arr[i].sum+'"><td>'+(i+1)+'</td><td>'+anal_arr[i].description+'</td><td>'+IntAddComma(anal_arr[i].sum)+'</td></tr>' );
+        }
+        
+        //analytics_sum_table
+        $('#analytics_sum_table tbody tr').remove();
+        $('#analytics_sum_table tbody').append( '<tr sum="'+sum+'" max="'+max_month+'"><td>總值</td><td>'+IntAddComma(sum)+'</td></tr>' );
+        $('#analytics_sum_table tbody').append( '<tr sum="'+sum+'" max="'+max_month+'"><td>最大值</td><td>'+IntAddComma(max_month)+'</td></tr>' );
+        
+        __AssignCss();
+        _Refresh_Chart(anal_arr, sum);
+        _Refresh_SumOfMonthChart(sumOfMonth);
+    }
+    
     
     function _Refresh_Chart(anal_arr, sum)
     {
@@ -127,6 +169,24 @@ function CAnalytics()
         url += '&chco=3399CC'; //color
         url += '&chd=t:' + sumOfDays.toString(); //data
         url += '&chtt=Sum+of+Days'; //title
+        $('#img_analytics_sumOfDaysChart').attr('src', url);
+    }
+    
+    function _Refresh_SumOfMonthChart(sumOfMonth)
+    {
+        //Refresh Analytics BarChart via Google CHART APIs
+        var max = MaxOfArray(sumOfMonth);
+        url = 'http://chart.apis.google.com/chart?';
+        url += 'chxt=y,x';
+        url += '&chxl=1:|1|2|3|4|5|6|7|8|9|10|11|12';
+        url += '&chxr=0,0,'+max+'|1,0,12'; //range
+        url += '&chbh=a';
+        url += '&chs=480x225';
+        url += '&chds=0,'+max;
+        url += '&cht=bvg';
+        url += '&chco=3399CC'; //color
+        url += '&chd=t:' + sumOfMonth.toString(); //data
+        url += '&chtt=Sum+of+Month'; //title
         $('#img_analytics_sumOfDaysChart').attr('src', url);
     }
     

@@ -4,6 +4,8 @@ var QUERY_TYPE_IN  = 'in';
 var QUERY_TYPE_CATEGORY_OUT = 'category_out';
 var QUERY_TYPE_CATEGORY_IN  = 'category_in';
 var QUERY_TYPE_SEARCH       = 'search';
+var QUERY_TYPE_SUMMARY_OUT  = 'summary_out';
+var QUERY_TYPE_SUMMARY_IN   = 'summary_in';
 
 //Query result key from JSON
 var QJ_KEY_KEY      = 'key';
@@ -36,6 +38,13 @@ function IsBrowseTrade()
 function IsBrowseCategory()
 {
     if(g_query_type==QUERY_TYPE_CATEGORY_OUT || g_query_type==QUERY_TYPE_CATEGORY_IN)
+        return true;
+    return false;
+}
+
+function IsBrowseSummary()
+{
+    if(g_query_type==QUERY_TYPE_SUMMARY_OUT || g_query_type==QUERY_TYPE_SUMMARY_IN)
         return true;
     return false;
 }
