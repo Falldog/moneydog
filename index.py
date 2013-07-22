@@ -9,7 +9,6 @@ import time
 import re
 import string
 
-
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -17,9 +16,8 @@ from google.appengine.ext.webapp import template
 
 from django.utils import simplejson as json
 
-#import mylib.gmemsess
-from mylib import gmemsess
-from my_func import *
+from lib import gmemsess
+from util import *
 
 CATEGORY_IN  = db.Category('in')
 CATEGORY_OUT = db.Category('out')
