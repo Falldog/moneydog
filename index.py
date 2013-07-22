@@ -391,7 +391,7 @@ class Query( webapp.RequestHandler ):
         for i in result:
             item = {
                 'key'         : str(i.key()),
-                'user'        : i.user.nickname()
+                'user'        : i.user.nickname(),
                 'description' : i.description,
             }
             items.append( item )
@@ -407,7 +407,7 @@ class Query( webapp.RequestHandler ):
         for i in result :
             item = {
                 'key'         : str(i.key()),
-                'user'        : i.user.nickname()
+                'user'        : i.user.nickname(),
                 'description' : i.description,
             }
             items.append( item )
