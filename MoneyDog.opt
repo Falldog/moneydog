@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-<project>
-	<options bootfile = "root.py"/>
-	<options runargs = "moneydog-tw"/>
-	<options workdir = ""/>
-	<options remotepath = ""/>
-	<options remotefilesync = "false"/>
-</project>

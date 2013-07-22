@@ -9,74 +9,26 @@
 <link type="text/css" rel="stylesheet" href="css/jquery-ui-1.7.2.custom.css"/>
 <link type="text/css" rel="stylesheet" href="css/jquery-tablesorter.css"/>
 
-<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
-<script type="text/javascript" src="js/jquery-alternate.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-alternate.js"></script>
 <script type="text/javascript" src="js/event.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/addDialog.js"></script>
 <script type="text/javascript" src="js/analytics.js"></script>
+<script type="text/javascript" src="js/core.js"></script>
 <script type="text/javascript">
-    $(function(){
-        $('#item_date').datepicker({ dateFormat: 'yy-mm-dd' });
-    });
 </script>
 <script type="text/javascript" language="javascript">
-    var type='{{type}}';
-
-//Const
-var QUERY_TYPE_OUT = 'out';
-var QUERY_TYPE_IN  = 'in';
-var QUERY_TYPE_CATEGORY_OUT = 'category_out';
-var QUERY_TYPE_CATEGORY_IN  = 'category_in';
-var QUERY_TYPE_SEARCH       = 'search';
-
-//Query result key from JSON
-var QJ_KEY_KEY      = 'key';
-var QJ_KEY_PRICE    = 'price';
-var QJ_KEY_CATEGORY = 'category';
-var QJ_KEY_DESC     = 'description';
-var QJ_KEY_TIME     = 'date';
-
-var MAX_ADD_NUM = 10;
-var g_query_type = QUERY_TYPE_OUT;
-var g_category = new Array();
-var g_eventMgr = new CEventMgr();
-
-//Class
-function CCategory(key, description)
-{
-    this.key = key;
-    this.description = description;
-}
-
-//Global function
-function IsBrowseTrade()
-{
-    if(g_query_type==QUERY_TYPE_OUT || g_query_type==QUERY_TYPE_IN)
-        return true;
-    return false;
-}
-function IsBrowseCategory()
-{
-    if(g_query_type==QUERY_TYPE_CATEGORY_OUT || g_query_type==QUERY_TYPE_CATEGORY_IN)
-        return true;
-    return false;
-}
-
-function AssignCategory2Select( select )
-{
-    select.children().remove();
-    for(var i =0 ; i < g_category.length ; i++ ){
-        var s = '<option value="'+g_category[i].key+'">'+g_category[i].description+'</option>';
-        select.append(s);
-    }
-}
+var type='{{type}}';
+$(function(){
+    $('#item_date').datepicker({ dateFormat: 'yy-mm-dd' });
+});
 
 $(function() {
     
-    
-    
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // { Main
     // Parameter initial...
     $('img').css('border-width', 0);
     $('#ui-datepicker-div').css('z-index', 2000);
@@ -146,9 +98,10 @@ $(function() {
     
     ChangeBrowseType(g_query_type);
     
+    // Main }
+    //////////////////////////////////////////////////////////////////////////////////////////////
     
     function Init_Dialog(){
-        
         $('#dialog_delete').dialog({
             autoOpen: false,
             bgiframe: true,
@@ -217,7 +170,7 @@ $(function() {
         });
         
     }
-    
+
     function ChangeBrowseType(type){
         g_query_type = type;
         if( IsBrowseTrade() ){
@@ -237,21 +190,14 @@ $(function() {
         $('.MenuBrowseTypeWrap').removeClass('MenuBrowseType_Focus');
         $('#query_'+g_query_type+'_wrap').addClass('MenuBrowseType_Focus');
     }
-    
+
     function QueryUserName(){
         cmd = "query?type=user_name";
         $.get( cmd, function callback(html){
                 $('#user_name').text(html)
-                    });    
+                    });
     }
     
-    function Get_CategoryKey(desc){
-        for( var i=0 ; i < g_category.length ; i++ ){
-            if( g_category[i].description == desc )
-                return g_category[i].key;
-        }
-        return '';
-    }
     function QueryData_Category(){
         var type = g_query_type;
         if( g_query_type == QUERY_TYPE_OUT || g_query_type == QUERY_TYPE_IN )
@@ -273,7 +219,7 @@ $(function() {
         AssignCategory2Table();
         HideLoader();
     }
-    
+
     function QueryData_Trade() {
         var y = $("#select_year").val();
         var m = $("#select_month").val();
@@ -295,7 +241,7 @@ $(function() {
         HideLoader();
         m_analytics.Refresh();
     }
-    
+
     function Search(){
         var key_words = $('#search_key_words').val();
         if( !key_words ) return;
@@ -321,7 +267,7 @@ $(function() {
         HideLoader();
         m_analytics.Refresh();
     }
-    
+
     function CreateSelectDate(){
         var curDate = new Date();
         var curY = curDate.getFullYear();
@@ -342,7 +288,7 @@ $(function() {
             QueryData_Trade();
         })
     }
-    
+
     function onDeleteDialog_DeleteClick(){
         $(this).dialog('close');
         var key = $('#delete_key').val();
@@ -364,14 +310,14 @@ $(function() {
     function HideLoader(){
         $('#imgLoader').hide();
     }
-    
+
     function RefreshPage(){
         if( IsBrowseTrade() )
             QueryData_Trade();
         else if( IsBrowseCategory() )
             QueryData_Category();
     }
-    
+
     function AssignCategory2Table(){
         $("#category_table tbody tr").remove();
         for(var i =0 ; i < g_category.length ; i++ ){
@@ -447,7 +393,7 @@ $(function() {
         $("#list_table tbody tr[key="+key+"] td:eq(0)").append("<img class='img_delete' key='"+key+"' alt='刪除' src='./img/delete.png'/>");
         //AssignCss_ListTableTrade(key);
     }
-    
+
     function AssignCss_ListTableTrade(key){
         $("#list_table tbody tr[key="+key+"] td:eq(1)").addClass('ListTableTH_time');
         $("#list_table tbody tr[key="+key+"] td:eq(2)").addClass('ListTableTH_price');
@@ -476,7 +422,6 @@ $(function() {
         AssignEditCategoryForm();
         AssignSearchCategory();
     }
-    
 });
 </script>
 

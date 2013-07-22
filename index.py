@@ -41,7 +41,7 @@ class TradeItem( db.Model ):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def GetCategory():
-    result = TradeCategory.gql( "Where user=:1 AND type=:2 ORDER BY description", users.get_current_user(), 'in' )
+    result = TradeCategory.gql( "Where user=:1 AND type=:2 ORDER BY description", users.get_current_user(), CATEGORY_IN )
     in_items = []
     for i in result :
         item = {}
@@ -49,7 +49,7 @@ def GetCategory():
         item['description'] = i.description
         in_items.append( item )
     
-    result = TradeCategory.gql( "Where user=:1 AND type=:2 ORDER BY description", users.get_current_user(), 'out' )
+    result = TradeCategory.gql( "Where user=:1 AND type=:2 ORDER BY description", users.get_current_user(), CATEGORY_OUT )
     out_items = []
     for i in result :
         item = {}
@@ -138,7 +138,7 @@ class ListAdd( webapp.RequestHandler ):
     def add_list_category_in(self):
         category = TradeCategory()
         category.user = users.get_current_user()
-        category.type = db.Category('in')
+        category.type = CATEGORY_IN
         category.description = self.request.get('item_description')
         category.put()
     
@@ -150,7 +150,7 @@ class ListAdd( webapp.RequestHandler ):
     def add_list_category_out(self):
         category = TradeCategory()
         category.user = users.get_current_user()
-        category.type = 'out'
+        category.type = CATEGORY_OUT
         category.description = self.request.get('item_description')
         category.put()
     
@@ -386,7 +386,7 @@ class Query( webapp.RequestHandler ):
     def do_query_category_in(self):
         result = TradeCategory.gql( "Where user=:1 AND type=:2", 
                                     users.get_current_user(), 
-                                    db.Category('in') )
+                                    CATEGORY_IN )
         items = []
         for i in result:
             item = {
@@ -402,7 +402,7 @@ class Query( webapp.RequestHandler ):
     def do_query_category_out(self):
         result = TradeCategory.gql( "Where user=:1 AND type=:2", 
                                     users.get_current_user(), 
-                                    'out' )
+                                    CATEGORY_OUT )
         items = []
         for i in result :
             item = {

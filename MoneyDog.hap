@@ -5,6 +5,7 @@
 	<options runargs = "moneydog-tw"/>
 	<options workdir = ""/>
 	<options remotepath = ""/>
+	<options pythonversion = "25"/>
 	<options remotefilesync = "false"/>
 	<group name = "Google App Engine">
 		<file path = "..\google_appengine\appcfg.py"/>
@@ -21,5 +22,5 @@
 			<file path = "templates\list_edit.html"/>
 		</group>
 	</group>
-    <file path = "root.py"/>
+	<file path = "root.py"/>
 </project>
