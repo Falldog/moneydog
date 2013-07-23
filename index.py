@@ -249,7 +249,7 @@ class SearchCategory( webapp.RequestHandler ):
             self.response.out.write('')
             return
         cate = result[0]
-        query = TradeItem.gql( "Where user=:1 AND category=:2", users.get_current_user(), cate )
+        query = TradeItem.gql( "Where user=:1 AND category=:2 ORDER BY date DESC, description", users.get_current_user(), cate )
         
         my_offset = 500
         cur_offset= 0

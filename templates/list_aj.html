@@ -314,6 +314,7 @@ $(function() {
         ShowLoader();
     }
     function Search_Result(json_data){
+        $('#add_input_btn').hide();
         $('#trade_list').show();
         $('#category_table').hide();
         $("#list_table tbody tr").remove();
@@ -325,7 +326,8 @@ $(function() {
         }
         AssignCss_ListTableAllTrade();
         HideLoader();
-        m_analytics.Refresh();
+        m_analytics.Refresh('year');
+        m_analytics.Show();
     }
 
     function CreateSelectDate(){

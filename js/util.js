@@ -72,4 +72,12 @@
                 _max = l[i];
         return _max;
     }
+    function MaxOfDict(d)
+    {
+        var _max = 0;
+        for(var x in d)
+            if( d[x] > _max )
+                _max = d[x];
+        return _max;
+    }
 //})
