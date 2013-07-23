@@ -329,15 +329,22 @@ $(function() {
     }
 
     function CreateSelectDate(){
-        var curDate = new Date();
-        var curY = curDate.getFullYear();
-        var curM = curDate.getMonth()+1;//0~11
-        for( var y=curY-3 ; y<curY+3 ; y++ )
-            $("#select_year").append( "<option value='"+y+"'>"+y+"</option>" );
-        for( var m=1 ; m<=12 ; m++ )
-            $("#select_month").append( "<option value='"+m+"'>"+m+"</option>" );
-        
-        AssignSelectDate(curY, curM);
+        function QueryValidYearCB(json_data){
+            var vy = JSON.parse(json_data);
+            var begin_y = vy[0];
+            var end_y = vy[1];
+            for( var y=begin_y ; y<end_y+1 ; y++ )
+                $("#select_year").append( "<option value='"+y+"'>"+y+"</option>" );
+            
+            var curDate = new Date();
+            var curY = curDate.getFullYear();
+            var curM = curDate.getMonth()+1;//0~11
+            for( var m=1 ; m<=12 ; m++ )
+                $("#select_month").append( "<option value='"+m+"'>"+m+"</option>" );
+            
+            AssignSelectDate(curY, curM);
+        }
+        $.get("query?type=valid_year", QueryValidYearCB, "json");
         
         $("#select_year").bind('change', function(e){
             //alert("change:" + $("#select_year").val() );

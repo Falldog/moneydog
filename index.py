@@ -323,6 +323,8 @@ class Query( webapp.RequestHandler ):
             self.do_search_category()
         elif type=='user_name':
             self.do_query_user_name()
+        elif type=='valid_year':
+            self.do_query_valid_year()
         elif type=='summary_out':
             self.do_query_summary(CATEGORY_OUT)
         elif type=='summary_in':
@@ -402,8 +404,21 @@ class Query( webapp.RequestHandler ):
     
     def do_query_user_name(self):
         self.response.out.write( users.get_current_user().nickname() )
-
-
+    
+    def do_query_valid_year(self):
+        query = TradeItem.gql( "WHERE user=:1 ORDER BY date", 
+                               users.get_current_user() )
+        item = query.get()
+        
+        cur_year = datetime.datetime.now().year
+        if item is None:
+            year = cur_year
+        else:
+            year = item.date.year
+        
+        valid = (cur_year, year) if year > cur_year else (year, cur_year)
+        self._outputItemsByJson(valid)
+        
 application = webapp.WSGIApplication([
         ('/',      MainPage),
         ('/index', MainPage),
