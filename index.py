@@ -92,69 +92,37 @@ class ListAdd( webapp.RequestHandler ):
     def get(self):
         type = self.request.get('type')
         
-        if type==None:
-            self.add_list_out()
+        if type is None:
+            self.add_list_trade(CATEGORY_OUT)
         elif type=='in':
-            self.add_list_in()
+            self.add_list_trade(CATEGORY_IN)
         elif type=='out':
-            self.add_list_out()
+            self.add_list_trade(CATEGORY_OUT)
         elif type=='category_in':
-            self.add_list_category_in()
+            self.add_list_category(CATEGORY_IN)
         elif type=='category_out':
-            self.add_list_category_out()
+            self.add_list_category(CATEGORY_OUT)
         
-    def add_list_in(self):
+    def add_list_trade(self, category):
         trade = TradeItem()
         trade.user        = users.get_current_user()
         trade.price       = int( self.request.get('item_price') )
         trade.description = self.request.get('item_description')
         trade.category    = db.get( self.request.get('item_category_id') )
-        trade.type        = CATEGORY_IN
+        trade.type        = category
     
         add_date = datetime.datetime.strptime( self.request.get('item_date'), "%Y-%m-%d" )
         trade.date        = datetime.date( add_date.year, add_date.month, add_date.day )
         trade.put()
         trade.save()
         
-        #self.redirect('/list?type=in')
-    
-    
-    def add_list_out(self):
-        trade = TradeItem()
-        trade.user        = users.get_current_user()
-        trade.price       = int( self.request.get('item_price') )
-        trade.description = self.request.get('item_description')
-        trade.category    = db.get( self.request.get('item_category_id') )
-        trade.type        = CATEGORY_OUT
-    
-        add_date = datetime.datetime.strptime( self.request.get('item_date'), "%Y-%m-%d" )
-        trade.date        = datetime.date( add_date.year, add_date.month, add_date.day )
-        trade.put()
-        trade.save()
+    def add_list_category(self, cate):
+        category = TradeCategory()
+        category.user = users.get_current_user()
+        category.type = cate
+        category.description = self.request.get('item_description')
+        category.put()
         
-        #self.redirect('/list?type=out')
-    
-    
-    def add_list_category_in(self):
-        category = TradeCategory()
-        category.user = users.get_current_user()
-        category.type = CATEGORY_IN
-        category.description = self.request.get('item_description')
-        category.put()
-    
-        #self.response.headers['Content-Type'] = 'text/plain'
-        #self.response.out.write( 'add_list_category_in '  )
-        #self.response.out.write( category.description )
-        #self.redirect('/list?type=category_in')
-    
-    def add_list_category_out(self):
-        category = TradeCategory()
-        category.user = users.get_current_user()
-        category.type = CATEGORY_OUT
-        category.description = self.request.get('item_description')
-        category.put()
-    
-        #self.redirect('/list?type=category_out')
     
 class ListEdit( webapp.RequestHandler ):
     def get(self):
@@ -175,7 +143,6 @@ class ListEdit( webapp.RequestHandler ):
                 item = db.get( db.Key( self.request.get('edit_key') ) )
                 item.description = self.request.get('edit_description')
                 item.put()
-            #self.redirect('/list?type='+type)
 
 class ListDelete( webapp.RequestHandler ):
     def get(self):
@@ -193,7 +160,6 @@ class ListDelete( webapp.RequestHandler ):
                     item.delete()
             else:
                 item.delete()
-        #self.redirect('/list?type='+type)
 
 class Search( webapp.RequestHandler ):
     def get(self):
@@ -319,8 +285,6 @@ class Query( webapp.RequestHandler ):
             self.do_query_category(CATEGORY_IN)
         elif type=='category_out':
             self.do_query_category(CATEGORY_OUT)
-        elif type=='search_category':
-            self.do_search_category()
         elif type=='user_name':
             self.do_query_user_name()
         elif type=='valid_year':
