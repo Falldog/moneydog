@@ -37,9 +37,19 @@
         return str;
     }
     
-    
+    function IsInt(n)
+    {
+        var intRegex = /^\d+$/;
+        if(intRegex.test(n))
+            return true;
+        return false;
+    }
+
     function IntAddComma(num)
     {
+        if(!IsInt(num))
+            return num;
+            
         if( num < 1000 ) 
             return String(num);
         else{
@@ -54,6 +64,21 @@
             }
             return IntAddComma( parseInt(num/1000) ) + "," + s;
         }
+    }
+    
+    function SortDictByKeys(dict)
+    {
+        var sorted = [];
+        for(var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort();
+
+        var tempDict = {};
+        for(var i = 0; i < sorted.length; i++) {
+            tempDict[sorted[i]] = dict[sorted[i]];
+        }
+        return tempDict;
     }
     
     //doesn't use the escape(), it will translate the chinese too.

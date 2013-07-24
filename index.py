@@ -60,6 +60,11 @@ def GetCategory():
     return ( in_items, out_items )
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
+class CacheCmdBase(object):
+    def ResponseInJson(self, cmd, data):
+        data = {'cmd':cmd, 'data':data}
+        self.response.out.write( json.dumps(data) )
+        
 class MainPage( webapp.RequestHandler ):
     def get(self):
         path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
@@ -161,13 +166,12 @@ class ListDelete( webapp.RequestHandler ):
             else:
                 item.delete()
 
-class Search( webapp.RequestHandler ):
+class Search( webapp.RequestHandler, CacheCmdBase ):
     def get(self):
         ''' Search TradeItem in the Description '''
-        type = 'search_result'#self.request.get('type')
         
-        words = self.request.get('key_words')
-        words = words.lower()
+        key_words = self.request.get('key_words')
+        words = key_words.lower()
         query = TradeItem.gql( "Where user=:1", users.get_current_user() )
         
         my_offset = 500
@@ -199,17 +203,24 @@ class Search( webapp.RequestHandler ):
             cur_offset += my_offset
             result = query.fetch( limit=500, offset=cur_offset )
         
-        self.response.out.write( json.dumps(items) )
+        cmd = {'cmd':'search',
+               'key_words':key_words }
+        self.ResponseInJson(cmd, items)
     
     
-class SearchCategory( webapp.RequestHandler ):
+class SearchCategory( webapp.RequestHandler, CacheCmdBase ):
     def get(self):
         ''' Search TradeItem in the Description '''
-        type = 'search_result'#self.request.get('type')
         
         cate_desc = self.request.get('category')
+        cate_type = self.request.get('type')
+        _type = CATEGORY_IN if cate_type == 'category_in' else CATEGORY_OUT
+        
         #print words.encode('utf-8')
-        query_cate = TradeCategory.gql( "Where user=:1 AND description=:2 ", users.get_current_user(), cate_desc )
+        query_cate = TradeCategory.gql( "Where user=:1 AND description=:2 AND type=:3 ", 
+                                        users.get_current_user(), 
+                                        cate_desc,
+                                        _type )
         result = query_cate.fetch(1)
         if not result:
             self.response.out.write('')
@@ -246,7 +257,10 @@ class SearchCategory( webapp.RequestHandler ):
             cur_offset += my_offset
             result = query.fetch( limit=500, offset=cur_offset )
         
-        self.response.out.write( json.dumps(items) )
+        cmd = {'cmd':'searchCate',
+               'type':cate_type,
+               'category':cate_desc }
+        self.ResponseInJson(cmd, items)
 
 
 class Test( webapp.RequestHandler ):
@@ -264,10 +278,7 @@ class ListAjax( webapp.RequestHandler ):
         self.response.out.write( template.render( path, None ))
 
 
-class Query( webapp.RequestHandler ):
-    def _outputItemsByJson(self, items):
-        self.response.out.write( json.dumps(items) )
-      
+class Query( webapp.RequestHandler, CacheCmdBase ):
     def post(self):
         self.get()
         
@@ -321,7 +332,11 @@ class Query( webapp.RequestHandler ):
             }
             items.append( item )
             
-        self._outputItemsByJson(items)
+        cmd = {'cmd':'query',
+               'type':category,
+               'year':year,
+               'month':month }
+        self.ResponseInJson(cmd, items)
         
     def do_query_category(self, category=CATEGORY_OUT):
         result = TradeCategory.gql( "Where user=:1 AND type=:2", 
@@ -337,7 +352,10 @@ class Query( webapp.RequestHandler ):
             items.append( item )
         
         items.sort(key=lambda x:x['description'])
-        self._outputItemsByJson(items)
+        
+        cmd = {'cmd':'query',
+               'type':category}
+        self.ResponseInJson(cmd, items)
     
     def do_query_summary(self, category=CATEGORY_OUT):
         try:
@@ -363,8 +381,12 @@ class Query( webapp.RequestHandler ):
                 }
                 items.append( item )
             summary.append(items)
-            
-        self._outputItemsByJson(summary)
+        
+        _type = 'summary_in' if category is CATEGORY_IN else 'summary_out'
+        cmd = {'cmd':'query',
+               'type':_type,
+               'year':year }
+        self.ResponseInJson(cmd, summary)
     
     def do_query_user_name(self):
         self.response.out.write( users.get_current_user().nickname() )
@@ -381,7 +403,10 @@ class Query( webapp.RequestHandler ):
             year = item.date.year
         
         valid = (cur_year, year) if year > cur_year else (year, cur_year)
-        self._outputItemsByJson(valid)
+        
+        cmd = {'cmd':'query',
+               'type':'valid_year'}
+        self.ResponseInJson(cmd, valid)
         
 application = webapp.WSGIApplication([
         ('/',      MainPage),

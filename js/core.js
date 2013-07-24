@@ -18,7 +18,7 @@ var MAX_ADD_NUM = 10;
 var g_query_type = QUERY_TYPE_OUT;
 var g_category = new Array();
 var g_eventMgr = new CEventMgr();
-
+var g_cache = new CCacheMgr();
 
 //Class
 function CCategory(key, description)
@@ -66,3 +66,52 @@ function Get_CategoryKey(desc){
     return '';
 }
 
+function ComposeParamURL(cmd)
+{
+    var paramArray = [];
+    for(var x in cmd)
+    {
+        if(x != 'cmd')
+            paramArray[paramArray.length] = x + "=" + cmd[x];
+    }
+    
+    var param = "";
+    for(var i=0 ; i < paramArray.length ; i++ )
+    {
+        param += paramArray[i];
+        if(i < paramArray.length-1)
+            param += '&';
+    }
+    return param;
+}
+
+function DoQuery(cmd, callback)
+{
+    var param = ComposeParamURL(cmd);
+    var cache_data = g_cache.get(cmd);
+    if(cache_data)
+    {
+        var from_cache = true;
+        callback(cache_data, from_cache);
+    }
+    else
+    {
+        $.get("query?"+param, callback, "json");
+    }
+}
+
+function DoCmd(cmd, callback)
+{
+    var param = ComposeParamURL(cmd);
+    var cache_data = g_cache.get(cmd);
+    if(cache_data)
+    {
+        var from_cache = true;
+        callback(cache_data, from_cache);
+    }
+    else
+    {
+        var cmd_key = cmd['cmd'];
+        $.get(cmd_key+"?"+param, callback, "json");
+    }
+}

@@ -73,7 +73,7 @@ function CAnalytics()
         var sumOfResult = Array(0);
         var begin_y = 0;
         var end_y = 0;
-        if(group == 'year')
+        if(group == 'year' && trs.length>0)
         {
             item_first = trs.eq(0);
             item_last = trs.eq(trs.length-1);

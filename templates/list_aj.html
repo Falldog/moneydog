@@ -14,6 +14,7 @@
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-alternate.js"></script>
 <script type="text/javascript" src="js/event.js"></script>
+<script type="text/javascript" src="js/cache.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/addDialog.js"></script>
 <script type="text/javascript" src="js/analytics.js"></script>
@@ -247,17 +248,23 @@ $(function() {
     }
     
     function QueryData_Category(){
+        ShowLoader();
         var type = g_query_type;
         if( g_query_type == QUERY_TYPE_OUT || g_query_type == QUERY_TYPE_IN )
             type = "category_" + g_query_type;
-        $.get("query?type="+type, QueryDataResult_Category, "json");
-        ShowLoader();
+        
+        var cmd = {'cmd':'query', 'type':type };
+        DoQuery(cmd, QueryDataResult_Category);
     }
-    function QueryDataResult_Category(json_data){
+    function QueryDataResult_Category(json_data, from_cache){
+        var jdata = null;
+        if(from_cache==true)
+            jdata = json_data;
+        else
+            jdata = g_cache.cacheJsonData(json_data);
+        
         delete g_category;
         g_category = new Array();
-        
-        var jdata = JSON.parse(json_data);
         for( var i=0 ; i < jdata.length ; i++ )
         {
             g_category[i] = new CCategory( jdata[i][QJ_KEY_KEY], jdata[i][QJ_KEY_DESC] );
@@ -269,18 +276,28 @@ $(function() {
     }
 
     function QueryData_Trade() {
+        ShowLoader();
+        
         var y = $("#select_year").val();
         var m = $("#select_month").val();
-        $.get("query?type="+g_query_type+"&year="+y+"&month="+m, QueryDataResult_Trade, "json");
-        ShowLoader();
+        
+        var cmd = {'cmd' : 'query',
+                   'type' : g_query_type,
+                   'year' : y,
+                   'month' : m };
+        DoQuery(cmd, QueryDataResult_Trade);
         return false;
     }
-    function QueryDataResult_Trade(json_data) {
+    function QueryDataResult_Trade(json_data, from_cache) {
+        var jdata = null;
+        if(from_cache==true)
+            jdata = json_data;
+        else
+            jdata = g_cache.cacheJsonData(json_data);
+            
         //Reset the #list_table
         $("#list_table tbody tr").remove();
         
-        //alert(json_data);
-        var jdata = JSON.parse(json_data);
         for( var i=0 ; i < jdata.length ; i++ )
         {
             AppendTradeData(jdata[i]);
@@ -291,14 +308,21 @@ $(function() {
     }
     
     function QueryData_Summary() {
-        var y = $("#select_year").val();
-        $.get("query?type="+g_query_type+"&year="+y, QueryDataResult_Summary, "json");
         ShowLoader();
+        var y = $("#select_year").val();
+        var cmd = {'cmd' : 'query',
+                   'type' : g_query_type,
+                   'year' : y };
+        DoQuery(cmd, QueryDataResult_Summary);
         return false;
     }
-    function QueryDataResult_Summary(json_data) {
+    function QueryDataResult_Summary(json_data, from_cache) {
         HideLoader();
-        var jdata = JSON.parse(json_data);
+        var jdata = null;
+        if(from_cache==true)
+            jdata = json_data;
+        else
+            jdata = g_cache.cacheJsonData(json_data);
         m_analytics.RefreshSummary(jdata);
     }
 
@@ -306,20 +330,32 @@ $(function() {
         var key_words = $('#search_key_words').val();
         if( !key_words ) return;
         
-        $.get("search?key_words="+encodeURIComponent(key_words), Search_Result, "json");
         ShowLoader();
+        //$.get("search?key_words="+encodeURIComponent(key_words), Search_Result, "json");
+        var cmd = { "cmd" : "search",
+                    "key_words" : encodeURIComponent(key_words) };
+        DoCmd(cmd, Search_Result);
     }
     function Search_Category(cate){
-        $.get("searchCate?category="+cate, Search_Result, "json");
         ShowLoader();
+        //$.get("searchCate?category="+cate+"&type="+g_query_type, Search_Result, "json");
+        var cmd = { "cmd" : "searchCate",
+                    "category" : cate,
+                    "type" : g_query_type };
+        DoCmd(cmd, Search_Result);
     }
-    function Search_Result(json_data){
+    function Search_Result(json_data, from_cache){
+        var jdata = null;
+        if(from_cache==true)
+            jdata = json_data;
+        else
+            jdata = g_cache.cacheJsonData(json_data);
+            
         $('#add_input_btn').hide();
         $('#trade_list').show();
         $('#category_table').hide();
         $("#list_table tbody tr").remove();
         
-        var jdata = JSON.parse(json_data);
         for( var i=0 ; i < jdata.length ; i++ )
         {
             AppendTradeData(jdata[i]);
@@ -331,8 +367,12 @@ $(function() {
     }
 
     function CreateSelectDate(){
-        function QueryValidYearCB(json_data){
-            var vy = JSON.parse(json_data);
+        function QueryValidYearCB(json_data, from_cache){
+            var vy = null;
+            if(from_cache==true)
+                vy = json_data;
+            else
+                vy = g_cache.cacheJsonData(json_data);
             var begin_y = vy[0];
             var end_y = vy[1];
             for( var y=begin_y ; y<end_y+1 ; y++ )
@@ -346,15 +386,17 @@ $(function() {
             
             AssignSelectDate(curY, curM);
         }
-        $.get("query?type=valid_year", QueryValidYearCB, "json");
+        
+        var cmd = {'cmd':'query', 'type':'valid_year'};
+        DoQuery(cmd, QueryValidYearCB);
         
         $("#select_year").bind('change', function(e){
-            //alert("change:" + $("#select_year").val() );
-            QueryData_Trade();
+            keep_cache = true;
+            RefreshPage(keep_cache);
         })
         $("#select_month").bind('change', function(e){
-            //alert("change:" + $("#select_month").val() );
-            QueryData_Trade();
+            keep_cache = true;
+            RefreshPage(keep_cache);
         })
     }
 
@@ -380,11 +422,16 @@ $(function() {
         $('#imgLoader').hide();
     }
 
-    function RefreshPage(){
+    function RefreshPage(keep_cache){
+        if(keep_cache!=true)
+            g_cache.clear();
+            
         if( IsBrowseTrade() )
             QueryData_Trade();
         else if( IsBrowseCategory() )
             QueryData_Category();
+        else if( IsBrowseSummary() )
+            QueryData_Summary();
     }
 
     function AssignCategory2Table(){
