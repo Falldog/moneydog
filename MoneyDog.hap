@@ -13,13 +13,11 @@
 	</group>
 	<group name = "MoneyDog">
 		<file path = "index.py"/>
-		<file path = "my_func.py"/>
+		<file path = "util.py"/>
 		<group name = "Template">
 			<file path = "templates\base.html"/>
-			<file path = "templates\calendar.html"/>
 			<file path = "templates\index.html"/>
-			<file path = "templates\list.html"/>
-			<file path = "templates\list_edit.html"/>
+			<file path = "templates\list_aj.html"/>
 		</group>
 	</group>
 	<file path = "root.py"/>

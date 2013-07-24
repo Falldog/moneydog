@@ -12,7 +12,7 @@ import sys
 cwd = os.path.abspath('.')
 
 PROJECT_DIR   = cwd
-GAE_DIR       = os.path.join(cwd,     '../google_appengine')
+GAE_DIR       = os.path.join(cwd,     '../google_appengine-1.1')
 dev_appserver = os.path.join(GAE_DIR, 'dev_appserver.py'   )
 
 #change the global variable for execute dev_appserver file.

@@ -24,3 +24,15 @@ indexes:
   - name: user=
   - name: date
 
+- kind: TradeItem
+  properties:
+  - name: category
+  - name: user
+  - name: date
+    direction: desc
+  - name: description
+  
+- kind: TradeItem
+  properties:
+  - name: user
+  - name: date
