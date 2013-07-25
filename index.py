@@ -22,6 +22,8 @@ from util import *
 CATEGORY_IN  = db.Category('in')
 CATEGORY_OUT = db.Category('out')
 
+MAX_FETCH_LIMIT = 1000
+
 # DataStore
 #-------------------------------------------------------------------------------------------------------------------------------------------
 class TradeCategory( db.Model ):
@@ -174,16 +176,15 @@ class Search( webapp.RequestHandler, CacheCmdBase ):
         words = key_words.lower()
         query = TradeItem.gql( "Where user=:1", users.get_current_user() )
         
-        my_offset = 500
-        cur_offset= 0
+        offset= 0
         
         items = []
         msg = {}
         msg['price_max'] = 0
         msg['price_total'] = 0
         
-        result = query.fetch( limit=500, offset=cur_offset )
-        while result :
+        while True:
+            result = query.fetch( limit=MAX_FETCH_LIMIT, offset=offset )
             for i in result :
                 # Find the keyword in the description~
                 if string.find( i.description.lower(), words ) >=0 :
@@ -200,8 +201,9 @@ class Search( webapp.RequestHandler, CacheCmdBase ):
                     msg['price_max'] = max( msg['price_max'], i.price )
                     msg['price_total'] += i.price
             
-            cur_offset += my_offset
-            result = query.fetch( limit=500, offset=cur_offset )
+            if len(result) < MAX_FETCH_LIMIT:
+                break
+            offset += MAX_FETCH_LIMIT
         
         cmd = {'cmd':'search',
                'key_words':key_words }
@@ -228,34 +230,32 @@ class SearchCategory( webapp.RequestHandler, CacheCmdBase ):
         cate = result[0]
         query = TradeItem.gql( "Where user=:1 AND category=:2 ORDER BY date DESC, description", users.get_current_user(), cate )
         
-        my_offset = 500
-        cur_offset= 0
+        offset= 0
         
         items = []
         msg = {}
         msg['price_max'] = 0
         msg['price_total'] = 0
         
-        result = query.fetch( limit=500, offset=cur_offset )
-        while result :
+        while True:
+            result = query.fetch( limit=MAX_FETCH_LIMIT, offset=offset )
             for i in result :
-                # Find the keyword in the description~
-                if string.find( i.category.description, cate_desc ) >=0 :
-                    item = {
-                        'key'         : str(i.key()),
-                        'price'       : i.price,
-                        'category'    : i.category.description,
-                        'description' : i.description,
-                        'date'        : str(i.date),
-                    }
-                    item['type'] = 'in' if i.type == CATEGORY_IN else 'out'
-                    items.append( item )
-                    
-                    msg['price_max'] = max( msg['price_max'], i.price )
-                    msg['price_total'] += i.price
-            
-            cur_offset += my_offset
-            result = query.fetch( limit=500, offset=cur_offset )
+                item = {
+                    'key'         : str(i.key()),
+                    'price'       : i.price,
+                    'category'    : i.category.description,
+                    'description' : i.description,
+                    'date'        : str(i.date),
+                }
+                item['type'] = 'in' if i.type == CATEGORY_IN else 'out'
+                items.append( item )
+                
+                msg['price_max'] = max( msg['price_max'], i.price )
+                msg['price_total'] += i.price
+                
+            if len(result) < MAX_FETCH_LIMIT:
+                break
+            offset += MAX_FETCH_LIMIT
         
         cmd = {'cmd':'searchCate',
                'type':cate_type,
@@ -363,24 +363,32 @@ class Query( webapp.RequestHandler, CacheCmdBase ):
         except ValueError:
             year = datetime.datetime.now().year
         
-        summary = [] #store the data in year
-        for m in range(1, 13):
-            # Get the trade items by monthly
-            dt = datetime.datetime(year,m,1)
-            query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4", 
-                                   users.get_current_user(), 
-                                   category, 
-                                   datetime.datetime(year,m,1), 
-                                   datetime.datetime(year,m,LastDayOfMonth(dt)) )
-            items = []
-            for i in query:
-                item = {
-                    'key'         : str(i.key()),
-                    'price'       : i.price,
-                    'category'    : i.category.description,
-                }
-                items.append( item )
-            summary.append(items)
+        query = TradeItem.gql( "WHERE user=:1 AND type=:2 AND date>=:3 AND date<=:4", 
+                               users.get_current_user(),
+                               category,
+                               datetime.datetime(year,1,1),
+                               datetime.datetime(year,12,31) )
+        
+        # query all items of the year
+        items = []
+        offset = 0
+        while True:
+            result = query.fetch( limit=MAX_FETCH_LIMIT, offset=offset )
+            items.extend(result)
+            if len(result) < MAX_FETCH_LIMIT:
+                break
+            offset += MAX_FETCH_LIMIT
+        
+        #separate the items by month
+        summary = [[] for i in range(12)]
+        for i in items:
+            item = {
+                'key'         : str(i.key()),
+                'price'       : i.price,
+                'category'    : i.category.description,
+            }
+            m = i.date.month-1
+            summary[m].append(item)
         
         _type = 'summary_in' if category is CATEGORY_IN else 'summary_out'
         cmd = {'cmd':'query',
