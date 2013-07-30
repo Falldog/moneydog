@@ -202,77 +202,72 @@ function CAnalytics()
     function _Refresh_Chart(anal_arr, sum)
     {
         //Refresh Analytics Chart via Google CHART APIs
-        url = 'http://chart.apis.google.com/chart?';
-        url += 'cht=p3'; //3D
-        url += '&chs=500x150'; //size
-        url += '&chco=3366CC'; //color
-        detail = '&chd=t:'; // Ex: chd=t:30,10,60
-        descript = '&chl='; //Ex: chl=Test|Type|Income
+        var data = [['Category', 'Money']];
         for( var i=0 ; i < anal_arr.length ; i++ )
         {
-            perc = parseInt(anal_arr[i].sum/sum*100);
-            detail += perc
-            descript += (anal_arr[i].description + ' ('+perc+'%)');
-            if(i!=anal_arr.length-1){
-                detail += ',';
-                descript += '|';
-            }
+            data[i+1] = [anal_arr[i].description, anal_arr[i].sum];
         }
-        url += detail;
-        url += descript;
-        $('#img_analytics_chart').attr('src', url);
+        
+        var gdata = google.visualization.arrayToDataTable(data);
+        var div = document.getElementById('analytics_chart_pie');
+        var chart = new google.visualization.PieChart(div);
+        var options = {
+          title: 'Category Pie',
+          width: 500,
+          height: 250,
+        };
+        chart.draw(gdata, options);
     }
     
     function _Refresh_SumOfDaysChart(sumOfDays)
     {
         //Refresh Analytics BarChart via Google CHART APIs
         var max = MaxOfArray(sumOfDays);
-        url = 'http://chart.apis.google.com/chart?';
-        url += 'chxt=y,x';
-        url += '&chxl=1:|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31';
-        url += '&chxr=0,0,'+max+'|1,0,31'; //range
-        url += '&chbh=a';
-        url += '&chs=480x225';
-        url += '&chds=0,'+max;
-        url += '&cht=bvg';
-        url += '&chco=3399CC'; //color
-        url += '&chd=t:' + sumOfDays.toString(); //data
-        url += '&chtt=Sum+of+Days'; //title
-        $('#img_analytics_sumOfDaysChart').attr('src', url);
+        var data = [['Days', 'Money']];
+        for(var i=0 ; i < sumOfDays.length ; i++)
+            data[i+1] = [String(i+1), sumOfDays[i]];
+        __Refresh_DrawChart('Sum of Days', data, max, 'Days', 10);
     }
     
     function _Refresh_SumOfMonthChart(sumOfMonth)
     {
         //Refresh Analytics BarChart via Google CHART APIs
         var max = MaxOfArray(sumOfMonth);
-        url = 'http://chart.apis.google.com/chart?';
-        url += 'chxt=y,x';
-        url += '&chxl=1:|1|2|3|4|5|6|7|8|9|10|11|12';
-        url += '&chxr=0,0,'+max+'|1,0,12'; //range
-        url += '&chbh=a';
-        url += '&chs=480x225';
-        url += '&chds=0,'+max;
-        url += '&cht=bvg';
-        url += '&chco=3399CC'; //color
-        url += '&chd=t:' + sumOfMonth.toString(); //data
-        url += '&chtt=Sum+of+Month'; //title
-        $('#img_analytics_sumOfDaysChart').attr('src', url);
+        var data = [['Month', 'Money']];
+        for(var i=0 ; i < sumOfMonth.length ; i++)
+            data[i+1] = [String(i+1), sumOfMonth[i]];
+        __Refresh_DrawChart('Sum of Month', data, max, 'Month');
     }
     function _Refresh_SumOfYearChart(sumOfYear, begin_y, end_y)
     {
         //Refresh Analytics BarChart via Google CHART APIs
         var max = MaxOfArray(sumOfYear);
-        url = 'http://chart.apis.google.com/chart?';
-        url += 'chxt=y,x';
-        url += '&chxr=0,0,'+max+'|1,'+begin_y+','+end_y; //range
-        url += '&chbh=a';
-        url += '&chs=480x225';
-        url += '&chds=0,'+max;
-        url += '&cht=bvg';
-        url += '&chco=3399CC'; //color
-        url += '&chd=t:' + sumOfYear.toString(); //data
-        url += '&chtt=Sum+of+Year'; //title
-        $('#img_analytics_sumOfDaysChart').attr('src', url);
+        var data = [['Year', 'Money']];
+        for(var i=0 ; i < sumOfYear.length ; i++)
+            data[i+1] = [String(begin_y+i), sumOfYear[i]];
+        __Refresh_DrawChart('Sum of Year', data, max, 'Year');
+    }
+    
+    function __Refresh_DrawChart(title, data, max, h_axis_title, bar_groupWidth)
+    {
+        var gdata = google.visualization.arrayToDataTable(data);
+        var div = document.getElementById('analytics_chart_columnsum');
+        var chart = new google.visualization.ColumnChart(div);
+        var options = {
+          title: title,
+          width: 500,
+          height: 250,
+          hAxis: {
+                  title: h_axis_title, 
+                  titleTextStyle: {color: 'black'}, 
+                 },
+          vAxis: {
+                  viewWindow: {'max':max}, 
+                 },
+        };
+        if(bar_groupWidth)
+            options['bar'] = {'groupWidth':bar_groupWidth};
+        chart.draw(gdata, options);
     }
     
     function __AssignCss()
