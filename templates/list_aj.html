@@ -271,9 +271,17 @@ $(function() { //$(document).ready(Main);
     function QueryData_Category(){
         ShowLoader();
         var type = g_query_type;
-        if( g_query_type == QUERY_TYPE_OUT || g_query_type == QUERY_TYPE_IN )
+        if( g_query_type == QUERY_TYPE_CATEGORY_IN || g_query_type == QUERY_TYPE_CATEGORY_OUT )
+            ;//do nothing
+        else if( g_query_type == QUERY_TYPE_OUT || g_query_type == QUERY_TYPE_IN )
             type = "category_" + g_query_type;
-        
+        else if( g_query_type == QUERY_TYPE_SUMMARY_IN )
+            type = "category_in";
+        else if( g_query_type == QUERY_TYPE_SUMMARY_OUT )
+            type = "category_out";
+        else
+            alert("QueryData_Category() unsupport type : "+g_query_type);
+            
         var cmd = {'cmd':'query', 'type':type };
         DoQuery(cmd, QueryDataResult_Category);
     }
