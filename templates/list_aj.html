@@ -309,6 +309,12 @@ $(function() { //$(document).ready(Main);
         
         var y = $("#select_year").val();
         var m = $("#select_month").val();
+        if( y==null || m==null )
+        {
+            var curDate = new Date();
+            y = curDate.getFullYear();
+            m = curDate.getMonth()+1;//0~11
+        }
         
         var cmd = {'cmd' : 'query',
                    'type' : g_query_type,
