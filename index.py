@@ -353,8 +353,9 @@ class Query( webapp.RequestHandler, CacheCmdBase ):
         
         items.sort(key=lambda x:x['description'])
         
+        str_category = 'category_' + category
         cmd = {'cmd':'query',
-               'type':category}
+               'type':str_category}
         self.ResponseInJson(cmd, items)
     
     def do_query_summary(self, category=CATEGORY_OUT):
