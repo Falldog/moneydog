@@ -3,6 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-TW" lang="zh-TW">
 <head>
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="PRAGMA" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
 
 <title>MoneyDog - List</title>
 <link type="text/css" rel="stylesheet" href="css/list.css" />
@@ -270,9 +273,17 @@ $(function() { //$(document).ready(Main);
     function QueryData_Category(){
         ShowLoader();
         var type = g_query_type;
-        if( g_query_type == QUERY_TYPE_OUT || g_query_type == QUERY_TYPE_IN )
+        if( g_query_type == QUERY_TYPE_CATEGORY_IN || g_query_type == QUERY_TYPE_CATEGORY_OUT )
+            ;//do nothing
+        else if( g_query_type == QUERY_TYPE_OUT || g_query_type == QUERY_TYPE_IN )
             type = "category_" + g_query_type;
-        
+        else if( g_query_type == QUERY_TYPE_SUMMARY_IN )
+            type = "category_in";
+        else if( g_query_type == QUERY_TYPE_SUMMARY_OUT )
+            type = "category_out";
+        else
+            alert("QueryData_Category() unsupport type : "+g_query_type);
+            
         var cmd = {'cmd':'query', 'type':type };
         DoQuery(cmd, QueryDataResult_Category);
     }
@@ -300,6 +311,12 @@ $(function() { //$(document).ready(Main);
         
         var y = $("#select_year").val();
         var m = $("#select_month").val();
+        if( y==null || m==null )
+        {
+            var curDate = new Date();
+            y = curDate.getFullYear();
+            m = curDate.getMonth()+1;//0~11
+        }
         
         var cmd = {'cmd' : 'query',
                    'type' : g_query_type,
