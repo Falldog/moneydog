@@ -226,6 +226,7 @@ $(function() { //$(document).ready(Main);
         var m = parseInt( $("#select_month").val() );
         if(IsBrowseSummary())
         {
+            $("#list_table tbody tr").remove(); // for clear previous search result
             y -= 1;
             AssignSelectDate(y,m);
             QueryData_Summary();
@@ -244,6 +245,7 @@ $(function() { //$(document).ready(Main);
         var m = parseInt( $("#select_month").val() );
         if(IsBrowseSummary())
         {
+            $("#list_table tbody tr").remove(); // for clear previous search result
             y += 1;
             AssignSelectDate(y,m);
             QueryData_Summary();
@@ -342,6 +344,7 @@ $(function() { //$(document).ready(Main);
         else
             jdata = g_cache.cacheJsonData(json_data);
         m_analytics.RefreshSummary(jdata);
+        AssignSearchCategory();
     }
 
     function Search(){
@@ -357,9 +360,11 @@ $(function() { //$(document).ready(Main);
     function Search_Category(cate){
         ShowLoader();
         //$.get("searchCate?category="+cate+"&type="+g_query_type, Search_Result, "json");
+        var y = $("#select_year").val();
         var cmd = { "cmd" : "searchCate",
                     "category" : cate,
-                    "type" : g_query_type };
+                    "type" : g_query_type,
+                    "year" : y};
         DoCmd(cmd, Search_Result);
     }
     function Search_Result(json_data, from_cache){

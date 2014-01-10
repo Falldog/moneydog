@@ -185,7 +185,11 @@ function CAnalytics()
         anal_arr.sort( __SortCateSum );
         $('#analytics_table tbody tr').remove();
         for( var i=0 ; i < anal_arr.length ; i++ ){
-            $('#analytics_table tbody').append( '<tr description="'+anal_arr[i].description+'" sum="'+anal_arr[i].sum+'"><td>'+(i+1)+'</td><td>'+anal_arr[i].description+'</td><td>'+IntAddComma(anal_arr[i].sum)+'</td></tr>' );
+            $('#analytics_table tbody').append( 
+                '<tr description="'+anal_arr[i].description+'" sum="'+anal_arr[i].sum+'">'
+                +'<td>'+(i+1)+'</td>'
+                +'<td><div class="category_desc">'+anal_arr[i].description+'</div></td>'
+                +'<td>'+IntAddComma(anal_arr[i].sum)+'</td></tr>' );
         }
         
         //analytics_sum_table

@@ -216,7 +216,8 @@ class SearchCategory( webapp.RequestHandler, CacheCmdBase ):
         
         cate_desc = self.request.get('category')
         cate_type = self.request.get('type')
-        _type = CATEGORY_IN if cate_type == 'category_in' else CATEGORY_OUT
+        _summary = cate_type.startswith('summary')
+        _type = CATEGORY_IN if cate_type.split('_')[1] == 'in' else CATEGORY_OUT
         
         #print words.encode('utf-8')
         query_cate = TradeCategory.gql( "Where user=:1 AND description=:2 AND type=:3 ", 
@@ -228,7 +229,18 @@ class SearchCategory( webapp.RequestHandler, CacheCmdBase ):
             self.response.out.write('')
             return
         cate = result[0]
-        query = TradeItem.gql( "Where user=:1 AND category=:2 ORDER BY date DESC, description", users.get_current_user(), cate )
+        
+        if _summary:
+            year = int(self.request.get('year'))
+            dt_begin = datetime.datetime(year,1,1)
+            dt_end = datetime.datetime(year,12,31)
+            query = TradeItem.gql( "Where user=:1 AND category=:2 AND date>=:3 AND date<=:4 ORDER BY date, description", 
+                                            users.get_current_user(), 
+                                            cate,
+                                            dt_begin,
+                                            dt_end )
+        else:
+            query = TradeItem.gql( "Where user=:1 AND category=:2 ORDER BY date DESC, description", users.get_current_user(), cate )
         
         offset= 0
         

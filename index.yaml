@@ -31,7 +31,14 @@ indexes:
   - name: date
     direction: desc
   - name: description
-  
+
+- kind: TradeItem
+  properties:
+  - name: category
+  - name: user
+  - name: date
+  - name: description  
+
 - kind: TradeItem
   properties:
   - name: user
