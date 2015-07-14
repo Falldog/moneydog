@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="col-md-4"></div>
+
+    <div class="col-md-4">
+
+      <form action="/edit/category/{{item.key.urlsafe()}}" method="POST">
+        <div class="form-group">
+            <label>收支</label>
+            <select name="category" class="form-control" disabled>
+                <option value="IN" {% if c_type =='IN' %}selected{% endif %}>收入</option>
+                <option value="OUT" {% if c_type =='OUT' %}selected{% endif %}>支出</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>父類別</label>
+            <select name="parent_category" class="form-control">
+                <option value=""></option>
+                {% for i in category_items %}
+                    {% if i.key != item.key %}
+                        <option value="{{i.key.urlsafe()}}"
+                                {% if i.key == item.parent_key%}selected{% endif %}>
+                            {{i.description}}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>名稱</label>
+            <input name="description" type="text" class="form-control" value="{{item.description}}">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+
+    </div>
+
+    <div class="col-md-4"></div>
+{% endblock %}
