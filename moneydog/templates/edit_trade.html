@@ -24,6 +24,10 @@
                 </select>
             </div>
             <div class="form-group">
+                <label>Date</label>
+                <input name="date" type="text" class="form-control datepicker" value="{{item.date|format_date}}">
+            </div>
+            <div class="form-group">
                 <label>Price</label>
                 <input name="price" type="text" class="form-control" value="{{item.price}}">
             </div>

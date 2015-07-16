@@ -5,9 +5,14 @@ api_version: 1
 threadsafe: true
 
 handlers:
+
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
+
+# App Engine serves and caches static files contained in the listed directories (and subdirectories)
+- url: /moneydog/static
+  static_dir: client
 
 - url: /.*
   script: moneydog.app
