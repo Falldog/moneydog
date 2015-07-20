@@ -22,6 +22,14 @@ def index():
 #def login():
 #    pass
 
+def _get_category_items(c_type):
+    items = []
+    q = TradeCategory.query_by_c_type(str2category(c_type))
+    for d in q.fetch():
+        items.append(d)
+    return items
+
+
 @login_required
 @update_basic_context
 def list_trade(c_type):
@@ -45,6 +53,7 @@ def list_trade(c_type):
         "items": items,
         "year": year,
         "month": month,
+        "category_items": _get_category_items(c_type),
     }
     return render_template('list_trade.html', **context)
 

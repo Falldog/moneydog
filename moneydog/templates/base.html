@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-us" >
+<html lang="en-us" ng-app="moneydogApp">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,8 +11,12 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="/static/css/bootstrap-datepicker3.min.css">
+
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+    {% block angular_controller %} {% endblock %}
 </head>
-<body>
+<body ng-controller="Controller">
     <!-- navbar -->
     <nav class="navbar navbar-default">
       <div class="container-fluid">
