@@ -12,6 +12,7 @@ app.add_url_rule('/list/category/<c_type>', 'list_category', views.list_category
 app.add_url_rule('/edit/category/<url_key>', 'edit_category', views.edit_category, methods=['GET', 'POST'])
 app.add_url_rule('/remove/category/<url_key>', 'remove_category', views.remove_category)
 app.add_url_rule('/add/category', 'add_category', views.add_category, methods=['GET', 'POST'])
+app.add_url_rule('/ajax/hello', 'ajax_hello', views.ajax_hello, methods=['POST'])
 
 
 # admin control view

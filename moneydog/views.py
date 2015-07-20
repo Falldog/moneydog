@@ -1,6 +1,7 @@
 from flask import request
 from flask import render_template
 from flask import abort, redirect, url_for
+from flask import jsonify
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -172,5 +173,10 @@ def add_category():
         )
         t.put()
         return redirect(url_for('index'))
+
+
+def ajax_hello():
+    obj = request.get_json()
+    return jsonify(result=obj['msg'])
 
 
