@@ -22,8 +22,10 @@ def index():
 
 
 def _get_category_items(c_type):
+    if isinstance(c_type, basestring):
+        c_type = str2category(c_type)
     items = []
-    q = TradeCategory.query_by_c_type(str2category(c_type))
+    q = TradeCategory.query_by_c_type(c_type)
     for d in q.fetch():
         items.append(d)
     return items
@@ -50,10 +52,33 @@ def list_trade(c_type):
 
     context = {
         "c_type": c_type,
+        "is_basic_list": True,
         "items": items,
         "year": year,
         "month": month,
         "category_items": _get_category_items(c_type),
+    }
+    return render_template('list_trade.html', **context)
+
+
+@login_required
+@update_basic_context
+def list_trade_by_category(url_key):
+    c = ndb.Key(urlsafe=url_key).get()
+    assert isinstance(c, TradeCategory)
+
+    q = TradeItem.query_by_c_type(c.c_type)
+    q = q.filter(TradeItem.category_key == c.key)
+    q = q.order(TradeItem.date, TradeItem.description)
+
+    items = [d for d in q.fetch()]
+
+    context = {
+        "c_type": c.c_type,
+        "items": items,
+        "year": 0,
+        "month": 0,
+        "category_items": _get_category_items(c.c_type),
     }
     return render_template('list_trade.html', **context)
 
@@ -91,7 +116,7 @@ def edit_trade(url_key):
         context = {
             "item": item,
             "c_type": category2str(item.c_type),
-            "category_items": [d for d in TradeCategory.query_by_c_type(item.c_type).fetch()],
+            "category_items": _get_category_items(item.c_type),
         }
         return render_template('edit_trade.html', **context)
 
@@ -177,7 +202,7 @@ def edit_category(url_key):
         context = {
             "item": item,
             "c_type": category2str(item.c_type),
-            "category_items": [d for d in TradeCategory.query_by_c_type(item.c_type).fetch()],
+            "category_items": _get_category_items(item.c_type),
         }
         return render_template('edit_category.html', **context)
 

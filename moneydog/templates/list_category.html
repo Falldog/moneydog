@@ -15,7 +15,11 @@
                 {% for item in category_items %}
                     <tr>
                         <td>{{item.c_type | category2str}}</td>
-                        <td>{{item.description}}</td>
+                        <td>
+                          <a href="/list/trade/by_category/{{item.key.urlsafe()}}">
+                            {{item.description}}
+                          </a>
+                        </td>
                         <td>
                             <a href="/edit/category/{{item.key.urlsafe()}}">
                                 <button type="button" class="btn-xs btn-default" aria-label="Left Align">

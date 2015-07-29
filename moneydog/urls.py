@@ -6,6 +6,7 @@ from moneydog import views_admin
 app.add_url_rule('/', 'index', views.index)
 #app.add_url_rule('/login', 'login', views.login)
 app.add_url_rule('/list/trade/<c_type>', 'list_trade', views.list_trade)
+app.add_url_rule('/list/trade/by_category/<url_key>', 'list_trade_by_category', views.list_trade_by_category)
 app.add_url_rule('/edit/trade/<url_key>', 'edit_trade', views.edit_trade, methods=['GET', 'POST'])
 app.add_url_rule('/add/trade/<c_type>', 'add_trade', views.add_trade, methods=['GET', 'POST'])
 app.add_url_rule('/remove/trade/<url_key>', 'remove_trade', views.remove_trade)
