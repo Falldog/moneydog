@@ -101,7 +101,7 @@ def edit_trade(url_key):
         item.price = float(request.form['price'])
         item.description = request.form['description']
         item.date = str2date(request.form['date'])
-        item.put(use_datastore=True, force_writes=True, use_cache=False, use_memcache=False)
+        item.put()
         item.refresh()
 
         return redirect('/list/trade/%s?year=%s&month=%s' % (category2str(item.c_type), item.date.year, item.date.month))
@@ -189,6 +189,7 @@ def edit_category(url_key):
         item.description = request.form['description']
         item.parent_key = parent_category.key if parent_category else None
         item.put()
+        item.refresh()
 
         return redirect('/list/category/'+category2str(item.c_type))
 

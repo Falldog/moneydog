@@ -84,21 +84,6 @@ moneydogApp.controller('Controller', function ($scope) {
 
 });
 
-
-moneydogApp.run( function($http){
-  // Simple POST request example (passing data) :
-  $http.post('/ajax/hello', {msg:'hello word!!!'}).
-      success(function(data, status, headers, config) {
-        // this callback will be called asynchronously
-        // when the response is available
-        console.log('fuck success : '+data['result']);
-      }).
-      error(function(data, status, headers, config) {
-        // called asynchronously if an error occurs
-        // or server returns response with an error status.
-        console.log('fuck error');
-      });
-});
 </script>
 {% endblock %}
 
