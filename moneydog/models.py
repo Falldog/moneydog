@@ -49,8 +49,16 @@ class TradeItem(ndb.Model):
     price = ndb.FloatProperty(required=True)
     date = ndb.DateProperty(required=True)
 
-    def delete(self):
-        self.key.delete()
+    def delete(self, **argd):
+        self.key.delete(**argd)
+
+    def refresh(self):
+        """
+        [Tricky] : after update data, redirect to list trade page will still display old data
+                   try to get item again will flush it for display new data
+        """
+        ndb.Key(urlsafe=self.key.urlsafe()).get()
+        # ndb.Key(urlsafe=self.key.urlsafe()).get(use_datastore=True, force_writes=True, use_cache=False, use_memcache=False)
 
     @classmethod
     def query_by_c_type(cls, c_type):

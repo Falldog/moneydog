@@ -9,6 +9,7 @@ from google.appengine.ext import ndb
 from moneydog import app
 from moneydog.models import TradeCategory, TradeItem, CATEGORY_IN, CATEGORY_OUT, str2category, category2str
 from moneydog.lib.decorators import login_required, update_basic_context
+from moneydog.lib.util import str2date
 
 import calendar
 from datetime import date
@@ -17,11 +18,8 @@ from datetime import date
 @login_required
 @update_basic_context
 def index():
-    #return "Fucking all Hello world!!!"
     return render_template('index.html', testing="Fucking all")
 
-#def login():
-#    pass
 
 def _get_category_items(c_type):
     items = []
@@ -30,6 +28,7 @@ def _get_category_items(c_type):
         items.append(d)
     return items
 
+# ========================================== TradeItem ==========================================
 
 @login_required
 @update_basic_context
@@ -61,6 +60,29 @@ def list_trade(c_type):
 
 @login_required
 @update_basic_context
+def analytics_trade_by_year(c_type):
+    year = int(request.args.get('year', '0'))
+    if year == 0:
+        year = date.today().year
+
+    q = TradeItem.query_by_c_type(str2category(c_type))
+    q = q.filter(TradeItem.date >= date(year, 1, 1))
+    q = q.filter(TradeItem.date <= date(year, 12, 31))
+    q = q.order(TradeItem.date, TradeItem.description)
+
+    #categorys = _get_category_items(c_type)
+    items = [d for d in q.fetch()]
+    context = {
+        "c_type": c_type,
+        "items": items,
+        "year": year,
+        "category_items": _get_category_items(c_type),
+    }
+    return render_template('analytics_trade_by_year.html', **context)
+
+
+@login_required
+@update_basic_context
 def edit_trade(url_key):
     item = ndb.Key(urlsafe=url_key).get()
     assert isinstance(item, TradeItem)
@@ -71,12 +93,6 @@ def edit_trade(url_key):
             "c_type": category2str(item.c_type),
             "category_items": [d for d in TradeCategory.query_by_c_type(item.c_type).fetch()],
         }
-        print 'fuck0'
-        for i in context['category_items']:
-            if i.key == item.category_key:
-                print 'fuck1'
-            #if i.description == item.category.description:
-            #    print 'fuck2'
         return render_template('edit_trade.html', **context)
 
     else:  # POST => update
@@ -84,23 +100,58 @@ def edit_trade(url_key):
         item.category_key = ndb.Key(urlsafe=category_key)
         item.price = float(request.form['price'])
         item.description = request.form['description']
+        item.date = str2date(request.form['date'])
         item.put(use_datastore=True, force_writes=True, use_cache=False, use_memcache=False)
-
-        # [Tricky] : after update data, redirect to list trade page will still display old data
-        #            try to get item again will flush it for display new data
-        ndb.Key(urlsafe=item.key.urlsafe()).get()
+        item.refresh()
 
         return redirect('/list/trade/%s?year=%s&month=%s' % (category2str(item.c_type), item.date.year, item.date.month))
 
 
 @login_required
 @update_basic_context
+def add_trade(c_type):
+    if request.method == "GET":
+        context = {
+            'today': date.today(),
+            "c_type": c_type,
+            "category_items": [d for d in TradeCategory.query_by_c_type(str2category(c_type)).fetch()],
+        }
+        return render_template('add_trade.html', **context)
+
+    else:
+        category_key_urlsafe = request.form['category']
+        category_key = ndb.Key(urlsafe=category_key_urlsafe)
+
+        t = TradeItem(
+            user=users.get_current_user(),
+            category_key=category_key,
+            c_type=category_key.get().c_type,
+            description=request.form['description'],
+            price=int(request.form['price']),
+            date=str2date(request.form['date']),
+        )
+        t.put()
+        return redirect(url_for('index'))
+
+
+@login_required
+@update_basic_context
 def remove_trade(url_key):
+    year = int(request.args.get('year', '0'))
+    month = int(request.args.get('month', '0'))
+
     item = ndb.Key(urlsafe=url_key).get()
     assert isinstance(item, TradeItem)
     item.delete()
+    item.refresh()
 
-    return redirect('/list/trade/'+category2str(item.c_type))
+    if year and month:
+        return redirect('/list/trade/%s?year=%s&month=%s' % (category2str(item.c_type), year, month))
+    else:
+        return redirect('/list/trade/'+category2str(item.c_type))
+
+
+# ========================================== TradeCategory ==========================================
 
 @login_required
 @update_basic_context
@@ -174,6 +225,8 @@ def add_category():
         t.put()
         return redirect(url_for('index'))
 
+
+# ========================================== Ajax ==========================================
 
 def ajax_hello():
     obj = request.get_json()

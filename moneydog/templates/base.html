@@ -38,13 +38,16 @@
             <li {% if page=='OUT' %}class="active"{% endif %}><a href="/list/trade/out">Out</a></li>
             <li {% if page=='CATEGORY_IN' %}class="active"{% endif %}><a href="/list/category/in">Category In</a></li>
             <li {% if page=='CATEGORY_OUT' %}class="active"{% endif %}><a href="/list/category/out">Category Out</a></li>
+            <li {% if page=='ANALYTICS_IN' %}class="active"{% endif %}><a href="/analytics/trade/year/in">Year IN</a></li>
+            <li {% if page=='ANALYTICS_OUT' %}class="active"{% endif %}><a href="/analytics/trade/year/out">Year OUT</a></li>
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                     New <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
                   <li><a href="/add/category">New Category</a></li>
-                  <li><a href="/add/trade">New Trade</a></li>
+                  <li><a href="/add/trade/in">New Trade (IN)</a></li>
+                  <li><a href="/add/trade/out">New Trade (OUT)</a></li>
                 </ul>
             </li>
 
