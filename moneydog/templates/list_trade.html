@@ -150,11 +150,10 @@ moneydogApp.run( function($http){
                                   <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                 </button>
                             </a>
-                            <a href="/remove/trade/[[item.key_urlsafe]]?year={{year}}&month={{month}}">
-                                <button type="button" class="btn-xs btn-default" aria-label="Left Align">
-                                  <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                </button>
-                            </a>
+                            <button type="button" class="btn-xs btn-default remove_trade_btn"
+                                    data-key="[[item.key_urlsafe]]" aria-label="Left Align">
+                              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
                         </td>
                     </tr>
             </tbody>
@@ -205,6 +204,15 @@ moneydogApp.run( function($http){
             var y = $('select[name="year"]').val();
             var m = $('select[name="month"]').val();
             window.location.href = '/list/trade/{{c_type}}?year=' + y + '&month=' + m;
+        });
+
+        $('.remove_trade_btn').click(function(){
+            var key_urlsafe = $(this).data('key');
+            bootbox.confirm("Are you sure?", function(result) {
+              if(result){
+                window.location.href = "/remove/trade/"+key_urlsafe+"?year={{year}}&month={{month}}";
+              }
+            });
         });
     });
 </script>
