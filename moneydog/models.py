@@ -1,10 +1,23 @@
 from google.appengine.ext import ndb
 from google.appengine.api import users
+from google.appengine.api import search
 
 
 CATEGORY_IN = 1
 CATEGORY_OUT = 2
 
+
+def tokenize_partialword(phrase):
+    a = []
+    for word in phrase.split():
+        j = 1
+        while True:
+            for i in range(len(word) - j + 1):
+                a.append(word[i:i + j])
+            if j == len(word):
+                break
+            j += 1
+    return a
 
 def str2category(s):
     if s.upper() == 'IN':
@@ -49,6 +62,7 @@ class TradeCategory(ndb.Model):
 
 
 class TradeItem(ndb.Model):
+    SEARCH_INDEX_KEY = 'trade'
     user = ndb.UserProperty(required=True)
     c_type = ndb.IntegerProperty(required=True)
     category_key = ndb.KeyProperty(kind='TradeCategory')
@@ -75,4 +89,45 @@ class TradeItem(ndb.Model):
     @classmethod
     def query_out(cls):
         return cls.query_by_c_type(CATEGORY_OUT)
+
+    def put_update_index(self, create=False, **argd):
+        ret = self.put(**argd)
+        if not create:
+            self.delete_search_index()
+        self.create_search_index()
+        return ret
+
+    def create_search_index(self):
+        index = search.Index(name=TradeItem.SEARCH_INDEX_KEY)
+
+        # split every word for search in partial word
+        # Ex: day => d, a, y, da, ay, day
+        text = ','.join(tokenize_partialword(self.description))
+
+        doc = search.Document(
+            doc_id=self.key.urlsafe(),
+            fields=[search.TextField(name='description', value=text)],
+            language='zh',
+        )
+
+        # Index the document.
+        try:
+            index.put(doc)
+        except search.PutError, e:
+            result = e.results[0]
+            if result.code == search.OperationResult.TRANSIENT_ERROR:
+                # possibly retry indexing result.object_id
+                print 'search.PutError!'
+        except search.Error, e:
+            # possibly log the failure
+            print 'search.Fail'
+
+    def delete_search_index(self):
+        # Get the index.
+        index = search.Index(name=TradeItem.SEARCH_INDEX_KEY)
+        try:
+            index.delete(self.key.urlsafe())
+        except search.DeleteError:
+            pass
+
 

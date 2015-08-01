@@ -5,6 +5,7 @@ from flask import jsonify
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
+from google.appengine.api import search
 
 from moneydog import app
 from moneydog.models import TradeCategory, TradeItem, CATEGORY_IN, CATEGORY_OUT, str2category, category2str
@@ -75,6 +76,7 @@ def list_trade_by_category(url_key):
 
     context = {
         "c_type": c.c_type,
+        "is_basic_list": False,
         "items": items,
         "year": 0,
         "month": 0,
@@ -126,7 +128,7 @@ def edit_trade(url_key):
         item.price = float(request.form['price'])
         item.description = request.form['description']
         item.date = str2date(request.form['date'])
-        item.put()
+        item.put_update_index()
         item.refresh()
 
         return redirect('/list/trade/%s?year=%s&month=%s' % (category2str(item.c_type), item.date.year, item.date.month))
@@ -155,7 +157,7 @@ def add_trade(c_type):
             price=int(request.form['price']),
             date=str2date(request.form['date']),
         )
-        t.put()
+        t.put_update_index(create=True)
         return redirect(url_for('index'))
 
 
@@ -250,6 +252,32 @@ def add_category():
         )
         t.put()
         return redirect(url_for('index'))
+
+
+# ========================================== Search ==========================================
+
+def search_text():
+    text = request.args.get('text')
+
+    index = search.Index(name=TradeItem.SEARCH_INDEX_KEY)
+    results = index.search('description:'+text)
+
+    items = []
+    for doc in results:
+        item = ndb.Key(urlsafe=doc.doc_id).get()
+        items.append(item)
+    items = sorted(items, key=lambda x: x.date, reverse=True)
+
+    # treat all search result as CATEGORY_OUT now
+    # may cause mistake, but just work on it
+    c_type = CATEGORY_OUT
+    context = {
+        "c_type": category2str(c_type),
+        "is_basic_list": False,
+        "items": items,
+        "category_items": _get_category_items(c_type),
+    }
+    return render_template('list_trade.html', **context)
 
 
 # ========================================== Ajax ==========================================

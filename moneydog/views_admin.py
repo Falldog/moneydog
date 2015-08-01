@@ -50,25 +50,30 @@ def push_ancient_data():
             c_map_out[t.description] = t
         ndb.put_multi(c_map_out.values())
 
-        items = []
+        items_out = []
         for d in data['out']:
             tm = time.strptime(d['dt'], '%Y-%m-%d')
             dt = date(year=tm.tm_year, month=tm.tm_mon, day=tm.tm_mday)
             t = TradeItem(user=user, c_type=CATEGORY_OUT,
                           price=d['pr'], description=d['ds'], category_key=c_map_out[d['ct']].key, date=dt)
-            items.append(t)
+            items_out.append(t)
 
-        ndb.put_multi(items)
+        ndb.put_multi(items_out)
 
-        items = []
+        items_in = []
         for d in data['in']:
             tm = time.strptime(d['dt'], '%Y-%m-%d')
             dt = date(year=tm.tm_year, month=tm.tm_mon, day=tm.tm_mday)
             t = TradeItem(user=user, c_type=CATEGORY_IN,
                           price=d['pr'], description=d['ds'], category_key=c_map_in[d['ct']].key, date=dt)
-            items.append(t)
+            items_in.append(t)
 
-        ndb.put_multi(items)
+        ndb.put_multi(items_in)
+
+        for i in items_out:
+            i.create_search_index()
+        for i in items_in:
+            i.create_search_index()
 
         context = {
             'done': True,

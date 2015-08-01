@@ -16,6 +16,7 @@ app.add_url_rule('/remove/category/<url_key>', 'remove_category', views.remove_c
 app.add_url_rule('/add/category', 'add_category', views.add_category, methods=['GET', 'POST'])
 
 app.add_url_rule('/analytics/trade/year/<c_type>', 'analytics_trade_by_year', views.analytics_trade_by_year)
+app.add_url_rule('/search/', 'search_text', views.search_text)
 
 app.add_url_rule('/ajax/hello', 'ajax_hello', views.ajax_hello, methods=['POST'])
 
