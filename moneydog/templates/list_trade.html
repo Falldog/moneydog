@@ -34,13 +34,13 @@ moneydogApp.filter('currency_tw', function($filter) {
   };
 });
 
-moneydogApp.controller('Controller', function ($scope) {
+moneydogApp.controller('Controller', ['$scope', '$sce', function ($scope, $sce) {
 
   $scope.category = [
     {% for c in category_items %}
         {'key': '{{c.key.id()}}',
          'parent_key': '{% if c.parent_key %}{{c.parent_key.id()}}{% endif %}',
-         'desc': '{{c.description}}',
+         'desc': {{c.description|tojson}},
          'count': 0,
         },
     {% endfor %}
@@ -53,7 +53,7 @@ moneydogApp.controller('Controller', function ($scope) {
          'category_key': '{{item.category_key.id()}}',
          'price': {{item.price}},
          'date': '{{item.date}}',
-         'desc': '{{item.description}}',
+         'desc': $sce.trustAsHtml({{item.description|tojson|safe}}),  // include html tag for ng-bind-html
         },
     {% endfor %}
   ];
@@ -80,7 +80,7 @@ moneydogApp.controller('Controller', function ($scope) {
     $scope.category[i]['count'] = count;
   }
 
-});
+}]);
 
 
 moneydogApp.run( function($http){
@@ -143,7 +143,7 @@ moneydogApp.run( function($http){
                         <td>[[item.date]]</td>
                         <td>[[item.category_key | category_str:this]]</td>
                         <td>[[item.price | currency_tw]]</td>
-                        <td>[[item.desc]]</td>
+                        <td ng-bind-html="item.desc"></td>
                         <td>
                             <a href="/edit/trade/[[item.key_urlsafe]]">
                                 <button type="button" class="btn-xs btn-default" aria-label="Left Align">
