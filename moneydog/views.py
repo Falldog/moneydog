@@ -287,3 +287,22 @@ def ajax_hello():
     return jsonify(result=obj['msg'])
 
 
+# ========================================== API ==========================================
+
+@login_required
+def api_category():
+    out_items = []
+    q = TradeCategory.query_by_c_type(CATEGORY_OUT)
+    for d in q.fetch():
+        out_items.append(d.to_json())
+    in_items = []
+    q = TradeCategory.query_by_c_type(CATEGORY_IN)
+    for d in q.fetch():
+        in_items.append(d.to_json())
+
+    context = {
+        category2str(CATEGORY_IN): in_items,
+        category2str(CATEGORY_OUT): out_items,
+    }
+    return jsonify(**context)
+

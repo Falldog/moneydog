@@ -38,6 +38,14 @@ class TradeCategory(ndb.Model):
     description = ndb.StringProperty(required=True)
     parent_key = ndb.KeyProperty(kind='TradeCategory', default=None)
 
+    def to_json(self):
+        return {
+            'c_type': category2str(self.c_type),
+            'description': self.description,
+            'key': self.key.urlsafe(),
+            'parent_key': self.parent_key.urlsafe() if self.parent_key else None,
+        }
+
     def delete(self, **argd):
         self.key.delete(**argd)
 

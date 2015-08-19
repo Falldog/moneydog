@@ -2,25 +2,20 @@
 
 {% block angular_controller %}
 <script type="text/javascript">
-var moneydogApp = angular.module('moneydogApp', []);
+angular.module('moneydogApp')
+  .filter('ignore_zero_by_count', function() {
+    return function(list) {
+      var new_list = Array();
+      for(var i=0 ; i<list.length ; i++){
+          if(list[i]['count']>0)
+              new_list.push(list[i]);
+      }
+      return new_list;
+    };
+  })
 
-moneydogApp.config(function($interpolateProvider) {
-  $interpolateProvider.startSymbol('[[');
-  $interpolateProvider.endSymbol(']]');
-});
-
-moneydogApp.filter('ignore_zero_by_count', function() {
-  return function(list) {
-    var new_list = Array();
-    for(var i=0 ; i<list.length ; i++){
-        if(list[i]['count']>0)
-            new_list.push(list[i]);
-    }
-    return new_list;
-  };
-});
-
-moneydogApp.filter('category_str', function() {
+angular.module('moneydogApp')
+.filter('category_str', function() {
   return function(c_key, $scope) {
     for(var i=0 ; i < $scope.category.length ; ++i)
       if($scope.category[i].key == c_key)
@@ -28,13 +23,15 @@ moneydogApp.filter('category_str', function() {
   };
 });
 
-moneydogApp.filter('currency_tw', function($filter) {
+angular.module('moneydogApp')
+.filter('currency_tw', function($filter) {
   return function(amount){
     return $filter('currency')(amount, '', 0);
   };
 });
 
-moneydogApp.controller('Controller', ['$scope', '$sce', function ($scope, $sce) {
+angular.module('moneydogApp')
+.controller('Controller', ['$scope', '$sce', function ($scope, $sce) {
 
   $scope.category = [
     {% for c in category_items %}
@@ -83,7 +80,8 @@ moneydogApp.controller('Controller', ['$scope', '$sce', function ($scope, $sce) 
 }]);
 
 
-moneydogApp.run( function($http){
+angular.module('moneydogApp')
+.run( function($http){
   // Simple POST request example (passing data) :
   $http.post('/ajax/hello', {msg:'hello word!!!'}).
       success(function(data, status, headers, config) {
@@ -101,6 +99,7 @@ moneydogApp.run( function($http){
 {% endblock %}
 
 {% block content %}
+<div ng-controller="Controller">
     <div class="col-md-1"></div>
     <div class="col-md-10">
       {% if is_basic_list %}
@@ -176,6 +175,7 @@ moneydogApp.run( function($http){
             </tbody>
         </table>
     <div class="col-md-4"></div>
+</div>
 {% endblock %}
 
 {% block js_area %}

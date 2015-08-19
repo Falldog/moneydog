@@ -19,6 +19,7 @@ app.add_url_rule('/analytics/trade/year/<c_type>', 'analytics_trade_by_year', vi
 app.add_url_rule('/search/', 'search_text', views.search_text)
 
 app.add_url_rule('/ajax/hello', 'ajax_hello', views.ajax_hello, methods=['POST'])
+app.add_url_rule('/api/category', 'api_category', views.api_category, methods=['GET', 'POST'])
 
 
 # admin control view

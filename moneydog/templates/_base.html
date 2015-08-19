@@ -15,9 +15,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/base.css">
-    {% block angular_controller %} {% endblock %}
 </head>
-<body ng-controller="Controller">
+<body>
     <!-- navbar -->
     <nav class="navbar navbar-default">
       <div class="container-fluid">
@@ -86,12 +85,15 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="//cdn.bootcss.com/bootbox.js/4.4.0/bootbox.min.js"></script>
     <script src="/static/js/bootstrap-datepicker.min.js"></script>
+    <script src="/static/aj/app.js"></script>
+    <script src="/static/aj/services.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             $.fn.datepicker.defaults.format = "yyyy-mm-dd";
             $('.datepicker').datepicker();
         });
     </script>
+    {% block angular_controller %} {% endblock %}
 
     {% block js_area %}
     {% endblock %}
