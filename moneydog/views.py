@@ -7,7 +7,6 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.api import search
 
-from moneydog import app
 from moneydog.models import TradeCategory, TradeItem, CATEGORY_IN, CATEGORY_OUT, str2category, category2str
 from moneydog.lib.decorators import login_required, update_basic_context
 from moneydog.lib.util import str2date
@@ -19,7 +18,7 @@ from datetime import date
 @login_required
 @update_basic_context
 def index():
-    return render_template('index.html', testing="Fucking all")
+    return redirect('/list/trade/out')
 
 
 def _get_category_items(c_type):

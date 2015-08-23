@@ -1,7 +1,9 @@
 ## moneydog
 A daily expenses website, build on Google App Engine.
-Base on Flask & bootstrap
+Base on Flask & bootstrap & AngularJS
 
+## GAE version
+* 1.9.25
 
 ## Usage
 * run appengine dev server on specific port
