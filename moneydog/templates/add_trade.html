@@ -1,43 +1,73 @@
 {% extends "_base.html" %}
+
+{% block angular_controller %}
+  {% include "add_trade.controller.js" %}
+{% endblock %}
+
 {% block content %}
-    <div class="col-md-4"></div>
+<div ng-controller="Controller as vm" ng-cloak>
+    <div class="col-md-1"></div>
 
-    <div class="col-md-4">
-
-        <form action="/add/trade/{{c_type}}" method="POST">
-            <div class="form-group">
-                <label>收支</label>
-                <select name="category" class="form-control" disabled>
-                    <option value="IN" {% if c_type =='IN' %}selected{% endif %}>收入</option>
-                    <option value="OUT" {% if c_type =='OUT' %}selected{% endif %}>支出</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>類別</label>
-                <select name="category" class="form-control">
-                    {% for i in category_items %}
-                      <option value="{{i.key.urlsafe()}}">
-                        {{i.description}}
-                      </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Date</label>
-                <input name="date" type="text" class="form-control datepicker" value="{{today|format_date}}">
-            </div>
-            <div class="form-group">
-                <label>Price</label>
-                <input name="price" type="text" class="form-control" value="">
-            </div>
-            <div class="form-group">
-                <label>名稱</label>
-                <input name="description" type="text" class="form-control" value="">
-            </div>
-            <button type="submit" class="btn btn-default">Submit</button>
+    <div class="col-md-10">
+        <form name="addFormWrap" action="/add/trade/{{c_type}}" method="POST">
+            <table class="table">
+                <thead>
+                    <th>收支</th>
+                    <th>類別</th>
+                    <th>Date</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                </thead>
+                <tbody ng-form="addForm" ng-repeat="item in vm.items">
+                  <tr>
+                    <td>
+                        <div class="form-group">
+                            <select name="category" class="form-control" ng-model="vm.type" disabled>
+                                <option value="in">收入</option>
+                                <option value="out">支出</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <select name="category" ng-model="item.category" class="form-control">
+                              <option ng-repeat="category in vm.category" value="[[category.key]]">[[category.description]]</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group"
+                            ng-class="{'has-error': !item.date}">
+                            <input type="datetime" class="form-control" date-time max-view="date" min-view="date" auto-close="true"
+                                   format="yyyy-MM-dd" ng-model="item.date">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group"
+                             ng-class="{'has-error': (item.price <= 0 || !item.price) && addForm.price.$dirty }">
+                            <input name="price" type="text" class="form-control" ng-model="item.price"
+                                   validator="(item.price <= 0 || !item.price) && addForm.price.$dirty" >
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input name="description" type="text" class="form-control" ng-model="item.description">
+                        </div>
+                    </td>
+                  </tr>
+                </tbody>
+            </table>
         </form>
+
+        <button type="button" ng-click="vm.add()" class="btn btn-default" aria-label="Left Align">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        </button>
+        <button type="button" ng-click="vm.submit()" class="btn btn-default" aria-label="Left Align">
+            Submit
+        </button>
     </div>
 
-    <div class="col-md-4"></div>
+    <div class="col-md-1"></div>
+</div>
 {% endblock %}
 

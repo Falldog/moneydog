@@ -6,6 +6,5 @@ def str2datetime(s):
 
 
 def str2date(s):
-    return datetime.strptime(s, '%Y-%m-%d').date()
-
+    return datetime.strptime(s[:10], '%Y-%m-%d').date()
 

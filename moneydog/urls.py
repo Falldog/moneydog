@@ -20,6 +20,7 @@ app.add_url_rule('/search/', 'search_text', views.search_text)
 
 app.add_url_rule('/ajax/hello', 'ajax_hello', views.ajax_hello, methods=['POST'])
 app.add_url_rule('/api/category', 'api_category', views.api_category, methods=['GET', 'POST'])
+app.add_url_rule('/api/add/trade', 'api_add_trade', views.api_add_trade, methods=['POST'])
 
 
 # admin control view

@@ -306,3 +306,29 @@ def api_category():
     }
     return jsonify(**context)
 
+@login_required
+def api_add_trade():
+    """
+       category will follow by the category_key(maybe CATEGORY_IN or CATEGORY_OUT)
+    """
+    items = request.get_json()
+    for item in items:
+        category_key = ndb.Key(urlsafe=item['category'])
+
+        t = TradeItem(
+            user=users.get_current_user(),
+            category_key=category_key,
+            c_type=category_key.get().c_type,
+            description=item['description'],
+            price=int(item['price']),
+            date=str2date(item['date']),
+        )
+        t.put_update_index(create=True)
+        t.refresh()
+
+    context = {
+        'result': True,
+    }
+    return jsonify(**context)
+
+
