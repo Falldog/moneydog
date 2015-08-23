@@ -74,25 +74,24 @@ angular.module('moneydogApp')
                     <th></th>
                 </tr>
             </thead>
-
-            <tbody ng-repeat="item in vm.trade_items">
-                    <tr>
-                        <td>[[item.date]]</td>
-                        <td>[[item.category_key | category_str:vm]]</td>
-                        <td>[[item.price | currency_tw]]</td>
-                        <td ng-bind-html="item.desc"></td>
-                        <td>
-                            <a href="/edit/trade/[[item.key_urlsafe]]">
-                                <button type="button" class="btn-xs btn-default" aria-label="Left Align">
-                                  <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                </button>
-                            </a>
-                            <button type="button" class="btn-xs btn-default remove_trade_btn"
-                                    data-key="[[item.key_urlsafe]]" aria-label="Left Align">
-                              <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            <tbody>
+                <tr ng-repeat="item in vm.trade_items">
+                    <td>[[item.date]]</td>
+                    <td>[[item.category_key | category_str:vm]]</td>
+                    <td>[[item.price | currency_tw]]</td>
+                    <td ng-bind-html="item.desc"></td>
+                    <td>
+                        <a href="/edit/trade/[[item.key_urlsafe]]">
+                            <button type="button" class="btn-xs btn-default" aria-label="Left Align">
+                              <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                             </button>
-                        </td>
-                    </tr>
+                        </a>
+                        <button type="button" class="btn-xs btn-default remove_trade_btn"
+                                data-key="[[item.key_urlsafe]]" aria-label="Left Align">
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -104,8 +103,8 @@ angular.module('moneydogApp')
             <thead>
                 <tr><th></th><th>Category</th><th>Total</th></tr>
             </thead>
-            <tbody ng-repeat="c in vm.category | ignore_zero_by_count | orderBy:'-count'">
-                <tr>
+            <tbody>
+                <tr ng-repeat="c in vm.category | ignore_zero_by_count | orderBy:'-count'">
                     <td>[[$index + 1]]</td>
                     <td>[[c.desc]]</td>
                     <td>[[vm.count_by_category(c) | currency_tw]]</td>

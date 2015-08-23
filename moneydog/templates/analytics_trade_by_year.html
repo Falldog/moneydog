@@ -1,15 +1,12 @@
 {% extends "_base.html" %}
 
 {% block angular_controller %}
+  {% include "analytics_trade_by_year.controller.js" %}
+
 <script type="text/javascript">
-var moneydogApp = angular.module('moneydogApp', []);
 
-moneydogApp.config(function($interpolateProvider) {
-  $interpolateProvider.startSymbol('[[');
-  $interpolateProvider.endSymbol(']]');
-});
-
-moneydogApp.filter('ignore_zero_by_count', function() {
+angular.module('moneydogApp')
+.filter('ignore_zero_by_count', function() {
   return function(list) {
     var new_list = Array();
     for(var i=0 ; i<list.length ; i++){
@@ -20,68 +17,20 @@ moneydogApp.filter('ignore_zero_by_count', function() {
   };
 });
 
-moneydogApp.filter('category_str', function() {
-  return function(c_key, $scope) {
-    for(var i=0 ; i < $scope.category.length ; ++i)
-      if($scope.category[i].key == c_key)
-        return $scope.category[i].desc;
+angular.module('moneydogApp')
+.filter('category_str', function() {
+  return function(c_key, vm) {
+    for(var i=0 ; i < vm.category.length ; ++i)
+      if(vm.category[i].key == c_key)
+        return vm.category[i].desc;
   };
 });
 
-moneydogApp.filter('currency_tw', function($filter) {
+angular.module('moneydogApp')
+.filter('currency_tw', function($filter) {
   return function(amount){
     return $filter('currency')(amount, '', 0);
   };
-});
-
-moneydogApp.controller('Controller', function ($scope) {
-
-  console.log($scope.$root);
-  $scope.$root.fuck = 'fuck-123';
-  $scope.category = [
-    {% for c in category_items %}
-        {'key': '{{c.key.id()}}',
-         'parent_key': '{% if c.parent_key %}{{c.parent_key.id()}}{% endif %}',
-         'desc': '{{c.description}}',
-         'count': 0,
-        },
-    {% endfor %}
-  ];
-
-  $scope.trade_items = [
-    {% for item in items %}
-        {'key': '{{item.key.id()}}',
-         'key_urlsafe': '{{item.key.urlsafe()}}',
-         'category_key': '{{item.category_key.id()}}',
-         'price': {{item.price}},
-         'date': '{{item.date}}',
-         'desc': '{{item.description}}',
-        },
-    {% endfor %}
-  ];
-
-  $scope.analytics_trade = {};
-  function analytics(cur_page, trade_items){
-    for(var i=0 ; i<trade_items.length ; ++i){
-        $scope.analytics_trade[cur_page]
-    }
-  }
-
-  $scope.count_by_category = function(category) {
-    category_key = category.key;
-    var count = 0;
-    var trade_items = $scope.trade_items;
-    for(var i=0 ; i<trade_items.length ; ++i){
-        if(trade_items[i].category_key == category_key)
-            count += trade_items[i].price;
-    }
-    return count;
-  };
-  for(var i=0 ; i < $scope.category.length ; i++){
-    var count = $scope.count_by_category($scope.category[i]);
-    $scope.category[i]['count'] = count;
-  }
-
 });
 
 </script>
@@ -109,21 +58,21 @@ moneydogApp.controller('Controller', function ($scope) {
 <div class="col-md-1"></div>
 
 <div class="col-md-4"></div>
-<div class="col-md-4">
+<div class="col-md-4" ng-controller="Controller as vm" ng-cloak>
     <table class="table table-striped table-bordered table-hover">
         <thead>
-        <tr>
-            <th></th>
-            <th>Category</th>
-            <th>Total</th>
-        </tr>
+            <tr>
+                <th></th>
+                <th>Category</th>
+                <th>Total</th>
+            </tr>
         </thead>
-        <tbody ng-repeat="c in category | ignore_zero_by_count | orderBy:'-count'">
-        <tr>
-            <td>[[$index + 1]]</td>
-            <td>[[c.desc]]</td>
-            <td>[[count_by_category(c) | currency_tw]]</td>
-        </tr>
+        <tbody>
+            <tr ng-repeat="c in vm.category | ignore_zero_by_count | orderBy:'-count'">
+                <td>[[$index + 1]]</td>
+                <td>[[c.desc]]</td>
+                <td>[[vm.count_by_category(c) | currency_tw]]</td>
+            </tr>
         </tbody>
     </table>
     <div class="col-md-4"></div>
