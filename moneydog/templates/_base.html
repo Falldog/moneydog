@@ -14,6 +14,19 @@
     <link rel="stylesheet" href="/static/aj/lib/angular-datepicker.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+    <style type="text/css">
+        /* Transparent Overlay for Spinner */
+        .spinner:before {
+          content: '';
+          display: block;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
 <body>
     <!-- navbar -->
@@ -80,9 +93,13 @@
         {% endblock %}
     </div>
 
+    <div id="spinner_wrap" class="loading">
+    </div>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="//cdn.bootcss.com/bootbox.js/4.4.0/bootbox.min.js"></script>
+    <script src="/static/js/spin.min.js"></script>
     <script src="/static/aj/lib/angular-datepicker.min.js"></script>
     <script src="/static/aj/app.js"></script>
     <script src="/static/aj/services.js"></script>
@@ -90,6 +107,47 @@
 
     {% block js_area %}
     {% endblock %}
+
+    <script type="text/javascript">
+      var spinner = null;
+      function startSpinner(){
+        if(spinner)
+          return;
+
+        var opts = {
+              lines: 13 // The number of lines to draw
+            , length: 27 // The length of each line
+            , width: 8 // The line thickness
+            , radius: 25 // The radius of the inner circle
+            , scale: 1 // Scales overall size of the spinner
+            , corners: 1 // Corner roundness (0..1)
+            , color: '#000' // #rgb or #rrggbb or array of colors
+            , opacity: 0.25 // Opacity of the lines
+            , rotate: 0 // The rotation offset
+            , direction: 1 // 1: clockwise, -1: counterclockwise
+            , speed: 1 // Rounds per second
+            , trail: 56 // Afterglow percentage
+            , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
+            , zIndex: 2e9 // The z-index (defaults to 2000000000)
+            , className: 'spinner' // The CSS class to assign to the spinner
+            , top: '40%' // Top position relative to parent
+            , left: '50%' // Left position relative to parent
+            , shadow: false // Whether to render a shadow
+            , hwaccel: false // Whether to use hardware acceleration
+            , position: 'absolute' // Element positioning
+        }
+        var target = document.getElementById('spinner_wrap');
+        spinner = new Spinner(opts).spin(target);
+      }
+
+      function stopSpinner(){
+        if(spinner){
+          spinner.stop();
+          $('#spinner_wrap').remove();
+          spinner = null;
+        }
+      }
+    </script>
 </body>
 </html>
 

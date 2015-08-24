@@ -9,7 +9,7 @@
 
     <div class="col-md-4" ng-controller="Controller as vm">
 
-        <form action="/edit/trade/{{item.key.urlsafe()}}" method="POST">
+        <form action="/edit/trade/{{item.key.urlsafe()}}" method="POST" ng-submit="vm.submit()">
             <div class="form-group">
                 <label>收支</label>
                 <select name="category" class="form-control" disabled>

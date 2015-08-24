@@ -40,6 +40,7 @@ angular.module('moneydogApp')
         }
       }
 
+      startSpinner();
       $http.post('/api/add/trade', vm.items)
         .then(function(response){
            var result = response.data;
@@ -48,6 +49,7 @@ angular.module('moneydogApp')
            }
         }, function(errResponse){
            console.log('error');
+           stopSpinner();
         });
 
     }; // submit
