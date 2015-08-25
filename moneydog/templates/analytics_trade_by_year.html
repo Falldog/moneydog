@@ -39,12 +39,12 @@ angular.module('moneydogApp')
 {% block content %}
 <div class="col-md-1"></div>
 <div class="col-md-10">
-    <div class="center">
+    <div class="range-control-bar text-center">
         <button type="button" class="btn-xs btn-default do_prev" aria-label="Left Align">
             <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
         </button>
 
-        <select name="year">
+        <select name="year" class="from-control">
             {% for y in g.year_range %}
                 <option value="{{y}}" {% if year==y %}selected{% endif %}>{{y}}</option>
             {% endfor %}
@@ -59,7 +59,7 @@ angular.module('moneydogApp')
 
 <div class="col-md-4"></div>
 <div class="col-md-4" ng-controller="Controller as vm" ng-cloak>
-    <table class="table table-striped table-bordered table-hover">
+    <table class="summary-table table table-striped table-bordered table-hover">
         <thead>
             <tr>
                 <th></th>
