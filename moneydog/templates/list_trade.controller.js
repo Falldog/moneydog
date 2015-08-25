@@ -4,6 +4,8 @@
 angular.module('moneydogApp')
 .controller('Controller', ['$sce', function ($sce) {
   var vm = this;
+  vm.predicate = 'date';
+  vm.reverse = false;
 
   vm.category = [
     {% for c in category_items %}
@@ -26,6 +28,11 @@ angular.module('moneydogApp')
         },
     {% endfor %}
   ];
+
+  vm.order = function(predicate){
+    vm.reverse = (vm.predicate == predicate) ? !vm.reverse : false;
+    vm.predicate = predicate;
+  }
 
   vm.analytics_trade = {};
   function analytics(cur_page, trade_items){

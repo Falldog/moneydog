@@ -1,6 +1,14 @@
 .center {
     text-align: center;
 }
+.sortorder:after {
+  content: '\25b2';
+  color: #aaa;
+}
+.sortorder.reverse:after {
+  content: '\25bc';
+  color: #aaa;
+}
 
 .range-control-bar {
   padding-bottom: 20px;
