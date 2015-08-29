@@ -29,6 +29,15 @@ angular.module('moneydogApp')
     {% endfor %}
   ];
 
+  vm.total = 0;
+  vm.max_item = vm.trade_items[0];
+  for(var i=0 ; i < vm.trade_items.length ; i++){
+    var item = vm.trade_items[i];
+    vm.total += item.price;
+    if(item.price > vm.max_item.price)
+      vm.max_item = item;
+  }
+
   vm.order = function(predicate){
     vm.reverse = (vm.predicate == predicate) ? !vm.reverse : false;
     vm.predicate = predicate;

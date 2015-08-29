@@ -111,6 +111,17 @@ angular.module('moneydogApp')
 
     <div class="col-md-4"></div>
     <div class="col-md-4">
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <th>Total</th>
+                <td>[[vm.total | currency_tw]]</td>
+            </tr>
+            <tr>
+                <th>Max</th>
+                <td>[[vm.max_item.date]] / [[vm.max_item.category_key | category_str:vm]] / [[vm.max_item.price]]</td>
+            </tr>
+        </table>
+
         <table class="summary-table table table-striped table-bordered table-hover">
             <thead>
                 <tr><th></th><th>Category</th><th>Total</th></tr>
