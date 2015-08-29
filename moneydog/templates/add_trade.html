@@ -17,6 +17,7 @@
                     <th>Date</th>
                     <th>Price</th>
                     <th>Description</th>
+                    <th></th>
                 </thead>
                 <tbody ng-form="addForm" ng-repeat="item in vm.items">
                   <tr>
@@ -53,6 +54,12 @@
                         <div class="form-group">
                             <input name="description" type="text" class="form-control" ng-model="item.description">
                         </div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn-xs btn-default"
+                                ng-click="vm.remove($index)" aria-label="Left Align">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </button>
                     </td>
                   </tr>
                 </tbody>

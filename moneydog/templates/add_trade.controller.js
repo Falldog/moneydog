@@ -2,7 +2,7 @@
 'use strip'
 
 angular.module('moneydogApp')
-  .controller('Controller', [ '$http', function($http) {
+  .controller('Controller', [ '$scope', '$http', function($scope, $http) {
     var vm = this;
     vm.items = [];
     vm.type = '{{c_type}}';
@@ -28,6 +28,15 @@ angular.module('moneydogApp')
         'price': 0,
       });
     }; // add
+
+    vm.remove = function(idx){
+      bootbox.confirm("Are you sure?", function(result) {
+        if(result){
+          vm.items.splice(idx, 1);
+          $scope.$apply();
+        }
+      });
+    }
 
     vm.submit = function(){
       console.log(vm.items);

@@ -91,3 +91,7 @@
 .add-trade-table > tbody > tr > td:nth-child(5){
   text-align: center;
 }
+.add-trade-table > tbody > tr > td:nth-child(6){
+  text-align: center;
+  padding-top: 13px;
+}
